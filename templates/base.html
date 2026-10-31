@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- Based on the "Sarab" template, Copyright (c) Bestwpware, distributed by ThemeWagon. MIT License - see /static/THIRD_PARTY_LICENSES.txt -->
+{% load static %}
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="author" content="Karamu">
+      <meta name="description" content="{% block description %}Karamu - book local chefs in Kenya for private dinners, parties, events and weekly meal prep. Compare menus and prices, then pay with M-Pesa once your chef confirms.{% endblock %}">
+      <title>{% block title %}Karamu - Your Chef is One Tap Away{% endblock %}</title>
+      <link rel="icon" type="image/svg+xml" href="{% static 'img/brand/karamu-mark.svg' %}"/>
+      <link rel="apple-touch-icon" href="{% static 'img/brand/apple-touch-icon.png' %}"/>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet"/>
+      <!-- Bootstrap 5.3 -->
+      <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+      <!-- AOS Animate on Scroll -->
+      <link href="{% static 'css/aos.css' %}" rel="stylesheet"/>
+      <!-- Swiper -->
+      <link href="{% static 'css/swiper-bundle.min.css' %}" rel="stylesheet"/>
+      <!-- all min css -->
+      <link rel="stylesheet" href="{% static 'css/all.min.css' %}"/>
+      <!-- magnific CSS -->
+      <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}"/>
+      <!-- Style CSS -->
+      <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+      <!-- Marketplace CSS -->
+      <link rel="stylesheet" href="{% static 'css/marketplace.css' %}" />
+   </head>
+   <body>
+      <!-- ============================================================
+         TOP BAR
+         ============================================================ -->
+      <div id="topbar">
+         <div class="container">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+               <div class="top-contact d-flex flex-wrap">
+                  <span><a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="tcwa"><i class="fab fa-whatsapp"></i>{{ whatsapp_display }}</a></span>
+                  <span><i class="fas fa-envelope"></i>hello@simplychefke.com</span>
+                  <span><i class="fas fa-map-marker-alt"></i>Nairobi, Kenya</span>
+               </div>
+               <div class="d-flex align-items-center gap-3">
+                  <span class="ttag"><i class="fas fa-mobile-alt me-1"></i>Pay easily with M-Pesa</span>
+                  {% if social_links %}<div class="tsoc">{% include 'partials/social_links.html' %}</div>{% endif %}
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- ============================================================
+         NAVBAR
+         ============================================================ -->
+      {% url 'marketplace' as marketplace_url %}
+      {% with url_name=request.resolver_match.url_name %}
+      <nav class="navbar navbar-expand-lg" id="nav">
+         <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+               <div class="blogo">
+                  <img class="bico" src="{% static 'img/brand/karamu-mark.svg' %}" alt=""/>
+                  <div>
+                     <div class="bname">Karamu</div>
+                     <div class="bsub">Private chefs &middot; at your table</div>
+                  </div>
+               </div>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+            <i class="fas fa-bars" style="color:var(--primary);font-size:1.35rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navmenu">
+               <ul class="navbar-nav mx-auto">
+                  <li class="nav-item"><a class="nav-link{% if url_name == 'index' %} active{% endif %}" href="{{ nav_prefix }}#hero">Home</a></li>
+                  <li class="nav-item"><a class="nav-link{% if url_name == 'marketplace' or url_name == 'chef_detail' %} active{% endif %}" href="{{ marketplace_url }}">Find a Chef</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ nav_prefix }}#menu">Packages</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ nav_prefix }}#history">How It Works</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ nav_prefix }}#hours">Become a Chef</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ nav_prefix }}#contact-section">Contact</a></li>
+               </ul>
+               <div class="d-flex align-items-center gap-1">
+                  {% block nav_search %}{% endblock %}
+                  {% if user.is_authenticated %}
+                  <div class="dropdown">
+                     <a href="#" class="nav-link nav-acct dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user-circle me-1"></i>{{ user.first_name|default:"My account" }}</a>
+                     <ul class="dropdown-menu dropdown-menu-end acmenu">
+                        {% if user.is_staff %}
+                        <li><a class="dropdown-item" href="{% url 'team_home' %}"><i class="fas fa-clipboard-check"></i>Team dashboard</a></li>
+                        {% endif %}
+                        {% if user.chef_profile %}
+                        <li><a class="dropdown-item" href="{% url 'chef_dashboard' %}"><i class="fas fa-calendar-check"></i>Chef bookings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'chef_profile_edit' %}"><i class="fas fa-user-edit"></i>Edit my profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'chef_availability' %}"><i class="fas fa-calendar-alt"></i>Availability</a></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{% url 'account' %}"><i class="fas fa-receipt"></i>My bookings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                           <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i>Log out</button></form>
+                        </li>
+                     </ul>
+                  </div>
+                  {% else %}
+                  <a href="{% url 'login' %}" class="nav-link nav-acct{% if url_name == 'login' or url_name == 'signup' %} active{% endif %}"><i class="fas fa-user me-1"></i>Log in</a>
+                  {% endif %}
+                  <a href="{{ marketplace_url }}" class="nav-link nav-cta"><i class="fas fa-store me-1"></i>Browse Marketplace</a>
+               </div>
+            </div>
+         </div>
+      </nav>
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+
+      <!-- FOOTER -->
+      <footer>
+         <div class="container">
+            <div class="row g-5">
+               <div class="col-lg-4">
+                  <div class="fnm"><img src="{% static 'img/brand/karamu-mark.svg' %}" alt=""/>Karamu</div>
+                  <p class="fdesc">Kenya's marketplace for private chefs, caterers and meal prep. Find a chef, see their menu and book. Your chef is one tap away.</p>
+                  {% if social_links %}<div class="fsoc">{% include 'partials/social_links.html' %}</div>{% endif %}
+               </div>
+               <div class="col-sm-6 col-lg-2">
+                  <div class="ftit">Quick Links</div>
+                  <ul class="flinks ps-0">
+                     <li><a href="{{ nav_prefix }}#hero"><i class="fas fa-chevron-right"></i>Home</a></li>
+                     <li><a href="{{ nav_prefix }}#about"><i class="fas fa-chevron-right"></i>About Us</a></li>
+                     <li><a href="{{ marketplace_url }}"><i class="fas fa-chevron-right"></i>Find a Chef</a></li>
+                     <li><a href="{{ nav_prefix }}#menu"><i class="fas fa-chevron-right"></i>Chef Packages</a></li>
+                     <li><a href="{{ nav_prefix }}#hours"><i class="fas fa-chevron-right"></i>Become a Chef</a></li>
+                     <li><a href="{{ nav_prefix }}#contact-section"><i class="fas fa-chevron-right"></i>Contact</a></li>
+                  </ul>
+               </div>
+               <div class="col-sm-6 col-lg-2">
+                  <div class="ftit">Services</div>
+                  <ul class="flinks ps-0">
+                     {% for service in footer_services %}
+                     <li><a href="{{ service.get_absolute_url }}"><i class="fas fa-chevron-right"></i>{{ service.name }}</a></li>
+                     {% endfor %}
+                  </ul>
+               </div>
+               <div class="col-lg-4">
+                  <div class="ftit">Get In Touch</div>
+                  <div class="fci">
+                     <div class="fciico"><i class="fas fa-map-marker-alt"></i></div>
+                     <div class="fciinfo"><strong>Location</strong>Nairobi, Kenya</div>
+                  </div>
+                  <div class="fci">
+                     <div class="fciico"><i class="fas fa-phone-alt"></i></div>
+                     <div class="fciinfo"><strong>Phone / WhatsApp</strong><a href="{{ whatsapp_url }}" target="_blank" rel="noopener">{{ whatsapp_display }}</a></div>
+                  </div>
+                  <div class="fci">
+                     <div class="fciico"><i class="fas fa-envelope"></i></div>
+                     <div class="fciinfo"><strong>Email</strong>hello@simplychefke.com</div>
+                  </div>
+                  <div class="fci">
+                     <div class="fciico"><i class="fas fa-mobile-alt"></i></div>
+                     <div class="fciinfo"><strong>Payments</strong>M-Pesa accepted</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="fbot">
+            <div class="container">
+               <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <p>&copy; 2026 <span>Karamu</span>. All Rights Reserved.</p>
+                  <div><a href="{% url 'privacy' %}">Privacy Policy</a><a href="{% url 'terms' %}">Terms</a><a href="{% url 'privacy' %}#cookies">Cookies</a></div>
+               </div>
+            </div>
+         </div>
+      </footer>
+      {% block floating %}{% endblock %}
+      <!-- WhatsApp chat -->
+      <a class="wafl" href="{{ whatsapp_url }}?text={% filter urlencode:'' %}{% block whatsapp_text %}Hi Karamu, I'd like to know more about your chefs.{% endblock %}{% endfilter %}" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      <!-- Back to top -->
+      <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></button>
+
+      <!-- jQuery -->
+      <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+      <!-- Bootstrap 5 -->
+      <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+      <!-- AOS -->
+      <script src="{% static 'js/aos.js' %}"></script>
+      {% block scripts %}
+      <script>
+         AOS.init({duration: 680, once: true, offset: 55});
+         window.addEventListener('scroll', function() {
+            document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+            document.getElementById('btt').classList.toggle('show', window.scrollY > 300);
+         });
+      </script>
+      {% endblock %}
+   </body>
+</html>

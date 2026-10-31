@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+      <meta name="robots" content="noindex">
+      <title>{% block title %}Team{% endblock %} - Karamu</title>
+      <link rel="icon" type="image/png" href="{% static 'img/brand/karamu-icon-192.png' %}"/>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+      <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet"/>
+      <link rel="stylesheet" href="{% static 'css/all.min.css' %}"/>
+      <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+      <link rel="stylesheet" href="{% static 'css/marketplace.css' %}"/>
+      <link rel="stylesheet" href="{% static 'css/team.css' %}"/>
+   </head>
+   <body class="team">
+      <header class="tmbar">
+         <div class="container">
+            <img src="{% static 'img/brand/karamu-icon-192.png' %}" alt=""/>
+            <a href="{% url 'team_home' %}" class="tmbrand">Karamu<small>Team</small></a>
+            <a href="{% url 'admin:index' %}" class="tmicon" title="Full admin"><i class="fas fa-cog"></i></a>
+            <a href="{% url 'index' %}" class="tmicon" title="View website"><i class="fas fa-globe-africa"></i></a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="tmicon" title="Log out"><i class="fas fa-sign-out-alt"></i></button></form>
+         </div>
+      </header>
+
+      <main class="container tmmain">
+         {% include 'accounts/_messages.html' %}
+         {% block content %}{% endblock %}
+      </main>
+
+      {% with url_name=request.resolver_match.url_name %}
+      <nav class="tmnav">
+         <a href="{% url 'team_home' %}" class="{% if url_name == 'team_home' or url_name == 'team_reviews' %}active{% endif %}">
+            <i class="fas fa-home"></i>Home{% if waiting.reviews %}<span class="tmbadge">{{ waiting.reviews }}</span>{% endif %}
+         </a>
+         <a href="{% url 'team_applications' %}" class="{% if url_name == 'team_applications' or url_name == 'team_application' or url_name == 'team_chefs' %}active{% endif %}">
+            <i class="fas fa-user-check"></i>Chefs{% if waiting.applications %}<span class="tmbadge">{{ waiting.applications }}</span>{% endif %}
+         </a>
+         <a href="{% url 'team_bookings' %}" class="{% if url_name == 'team_bookings' or url_name == 'team_booking' %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i>Bookings{% with n=waiting.bookings|add:waiting.payments %}{% if n %}<span class="tmbadge">{{ n }}</span>{% endif %}{% endwith %}
+         </a>
+         <a href="{% url 'team_requests' %}" class="{% if url_name == 'team_requests' %}active{% endif %}">
+            <i class="fas fa-concierge-bell"></i>Requests{% if waiting.requests %}<span class="tmbadge">{{ waiting.requests }}</span>{% endif %}
+         </a>
+         <a href="{% url 'team_inbox' %}" class="{% if url_name == 'team_inbox' %}active{% endif %}">
+            <i class="fas fa-envelope"></i>Inbox{% if waiting.inbox %}<span class="tmbadge">{{ waiting.inbox }}</span>{% endif %}
+         </a>
+      </nav>
+      {% endwith %}
+   </body>
+</html>

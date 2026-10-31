@@ -1,0 +1,35 @@
+{% comment %}
+Status and payment buttons for a booking, on the bookings list and a booking's page. Needs booking.
+{% endcomment %}
+{% if booking.chef_next_statuses %}
+<div class="tmrow">
+   {% for next_status in booking.chef_next_statuses %}
+   <form method="post" action="{% url 'team_booking_status' booking.pk %}"{% if next_status == 'cancelled' %} onsubmit="return confirm('{% if booking.status == 'new' %}Decline{% else %}Cancel{% endif %} this booking? The customer will be emailed.');"{% endif %}>
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ next_status.value }}"/>
+      <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+      {% if next_status == 'confirmed' %}
+      <div class="tmprice">
+         <input type="number" name="price" class="fctrl" min="1" required aria-label="Price for the customer (KSh)" placeholder="Price (KSh)" value="{{ booking.price|default_if_none:booking.suggested_price|default_if_none:'' }}"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-check"></i>Confirm</button>
+      </div>
+      {% elif next_status == 'completed' %}<button type="submit" class="bkbtn"><i class="fas fa-flag-checkered"></i>Completed</button>
+      {% else %}<button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-times"></i>{% if booking.status == 'new' %}Decline{% else %}Cancel{% endif %}</button>{% endif %}
+   </form>
+   {% endfor %}
+</div>
+{% endif %}
+{% if booking.team_payment_actions %}
+<div class="tmrow">
+   {% for action in booking.team_payment_actions %}
+   <form method="post" action="{% url 'team_booking_payment' booking.pk %}"{% if action == 'unpaid' %} onsubmit="return confirm('Payment not found? The customer will be asked to check their M-Pesa code.');"{% elif action == 'refunded' %} onsubmit="return confirm('Have you sent KSh {{ booking.price }} back to {{ booking.phone }}?');"{% endif %}>
+      {% csrf_token %}
+      <input type="hidden" name="payment_status" value="{{ action.value }}"/>
+      <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+      {% if action == 'paid' %}<button type="submit" class="bkbtn"><i class="fas fa-check-double"></i>{% if booking.payment_status == 'submitted' %}Payment received{% else %}Mark paid{% endif %}</button>
+      {% elif action == 'unpaid' %}<button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-question"></i>Not found</button>
+      {% else %}<button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-undo"></i>Mark refunded</button>{% endif %}
+   </form>
+   {% endfor %}
+</div>
+{% endif %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if active_service %}{{ active_service.name }}{% else %}Find a Chef{% endif %}{% if active_city %} in {{ active_city.name }}{% endif %} - Karamu{% endblock %}
+{% block description %}Browse verified private chefs, caterers and home cooks{% if active_city %} in {{ active_city.name }}{% else %} across Kenya{% endif %}. Compare menus, prices and reviews, then book in minutes.{% endblock %}
+
+{% block content %}
+<!-- MARKETPLACE HEADER -->
+<section class="mkhero">
+   <div class="container">
+      <span class="slbl">The Chef Marketplace</span>
+      <h1 class="stitle">
+         {% if active_service %}{{ active_service.name }}{% else %}Find Your <span>Perfect Chef</span>{% endif %}
+         {% if active_city %}in <span>{{ active_city.name }}</span>{% endif %}
+      </h1>
+      <p class="sdesc">{% if active_service %}{{ active_service.description }}{% else %}Private chefs, caterers, meal prep and cooking classes. Compare real profiles, menus and prices, then book in minutes.{% endif %}</p>
+
+      <!-- FILTERS -->
+      <form method="get" class="mkfilter">
+         <div class="mkfield mkq">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="Search chefs, dishes or areas..."/>
+         </div>
+         <div class="mkfield">
+            <select name="service" onchange="this.form.submit()">
+               <option value="">All services</option>
+               {% for s in services %}<option value="{{ s.slug }}"{% if s == active_service %} selected{% endif %}>{{ s.name }}</option>{% endfor %}
+            </select>
+         </div>
+         <div class="mkfield">
+            <select name="city" onchange="this.form.submit()">
+               <option value="">All cities</option>
+               {% for c in cities %}<option value="{{ c.slug }}"{% if c == active_city %} selected{% endif %}>{{ c.name }}</option>{% endfor %}
+            </select>
+         </div>
+         <div class="mkfield">
+            <select name="sort" onchange="this.form.submit()">
+               {% for key, label in sort_options.items %}<option value="{{ key }}"{% if key == sort %} selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+         </div>
+         <button type="submit" class="btn-red"><i class="fas fa-search"></i>Search</button>
+      </form>
+
+      <!-- SERVICE PILLS -->
+      <div class="mkpills">
+         <a href="?{% if active_city %}city={{ active_city.slug }}{% endif %}" class="{% if not active_service %}active{% endif %}">All</a>
+         {% for s in services %}
+         <a href="?service={{ s.slug }}{% if active_city %}&city={{ active_city.slug }}{% endif %}" class="{% if s == active_service %}active{% endif %}"><i class="fas {{ s.icon }}"></i>{{ s.name }}</a>
+         {% endfor %}
+      </div>
+   </div>
+</section>
+
+<!-- RESULTS -->
+<section class="mkresults">
+   <div class="container">
+      <div class="mkcount">
+         <strong>{{ page.paginator.count }}</strong> chef{{ page.paginator.count|pluralize }} found
+         {% if query or active_service or active_city %}<a href="{% url 'marketplace' %}"><i class="fas fa-times"></i> Clear filters</a>{% endif %}
+      </div>
+      <div class="row g-4">
+         {% for chef in page %}
+         <div class="col-sm-6 col-lg-4 col-xl-3">{% include 'partials/chef_card.html' %}</div>
+         {% empty %}
+         <div class="col-12">
+            <div class="mkempty">
+               <i class="fas fa-search"></i>
+               <h5>No chefs match your search yet</h5>
+               <p>Try another service or city, or tell us what you need and we'll find a chef for you.</p>
+               <a href="{{ nav_prefix }}#contact-section" class="btn-red"><i class="fas fa-paper-plane"></i>Request a Chef</a>
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+
+      {% if page.has_other_pages %}
+      <nav class="mkpages">
+         {% if page.has_previous %}<a href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{ page.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>{% endif %}
+         {% for n in page.paginator.page_range %}
+         <a href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{ n }}" class="{% if n == page.number %}active{% endif %}">{{ n }}</a>
+         {% endfor %}
+         {% if page.has_next %}<a href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{ page.next_page_number }}"><i class="fas fa-chevron-right"></i></a>{% endif %}
+      </nav>
+      {% endif %}
+   </div>
+</section>
+
+<!-- CTA -->
+<section class="mkcta">
+   <div class="container text-center">
+      <h2 class="stitle" style="color:#fff;">Are You a <span style="color:var(--secondary);">Chef?</span></h2>
+      <p>Join Karamu, get bookings from customers near you and get paid via M-Pesa.</p>
+      <a href="{{ nav_prefix }}#hours" class="btn-red"><i class="fas fa-user-plus"></i>Become a Chef Partner</a>
+   </div>
+</section>
+{% endblock %}

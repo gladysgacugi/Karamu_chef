@@ -1,0 +1,16 @@
+{% extends 'accounts/auth_base.html' %}
+
+{% block title %}Create an account - Karamu{% endblock %}
+{% block eyebrow %}Join Karamu{% endblock %}
+{% block heading %}Create your <span>account</span>{% endblock %}
+
+{% block card %}
+<p class="acsub">Book chefs faster with your details filled in, and follow every booking in one place.</p>
+<form method="post" novalidate>
+   {% csrf_token %}
+   <input type="hidden" name="next" value="{{ next }}"/>
+   {% include 'accounts/_form_fields.html' %}
+   <button type="submit" class="btn-red w-100 justify-content-center mt-4"><i class="fas fa-user-plus"></i>Create account</button>
+</form>
+<p class="acfoot">Already have an account? <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Log in</a></p>
+{% endblock %}

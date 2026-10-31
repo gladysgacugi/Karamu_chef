@@ -1,0 +1,8 @@
+{% comment %}
+The dates a chef is away, above the booking form. Needs chef and time_off.
+{% endcomment %}
+{% if time_off %}
+<p class="cpaway"><i class="fas fa-plane"></i><strong>Away:</strong>
+   {% for t in time_off %}{% if t.start_date == t.end_date %}{{ t.start_date|date:"j M" }}{% else %}{{ t.start_date|date:"j M" }} - {{ t.end_date|date:"j M" }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
+</p>
+{% endif %}

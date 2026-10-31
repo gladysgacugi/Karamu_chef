@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+{% comment %}
+Shown when the site itself breaks. Django renders it without the usual context or database,
+so it only uses static files and inline styles.
+{% endcomment %}
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="robots" content="noindex">
+      <title>Something went wrong | Karamu</title>
+      <link rel="icon" type="image/svg+xml" href="{% static 'img/brand/karamu-mark.svg' %}"/>
+      <style>
+         body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px;
+                font-family: Poppins, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f7f2ea; color: #1c1917; }
+         .box { max-width: 480px; background: #fff; border-radius: 20px; padding: 36px 28px; text-align: center;
+                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08); }
+         .brand { font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 8px; }
+         .brand img { width: 32px; height: 32px; }
+         .brand span, h1 span { color: #b5462a; }
+         .code { display: block; margin: 22px 0 6px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; color: #b5462a; }
+         h1 { font-size: 1.6rem; margin: 0 0 12px; }
+         p { color: #777; font-size: 0.92rem; line-height: 1.6; }
+         .btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+         a.btn { padding: 11px 22px; border-radius: 24px; font-weight: 600; font-size: 0.88rem; text-decoration: none;
+                 border: 1.5px solid #b5462a; background: #b5462a; color: #fff; }
+         a.btn.ghost { background: #fff; color: #b5462a; }
+      </style>
+   </head>
+   <body>
+      <div class="box">
+         <div class="brand"><img src="{% static 'img/brand/karamu-mark.svg' %}" alt=""/>Karamu</div>
+         <span class="code">ERROR 500</span>
+         <h1>Something went <span>wrong</span></h1>
+         <p>Sorry, our site had a problem loading this page. Our team has been told. Please try again in a few minutes. If you were making a booking or payment, WhatsApp us and we'll check it went through.</p>
+         <div class="btns">
+            <a href="/" class="btn">Back to the homepage</a>
+            <a href="https://wa.me/254742648795" class="btn ghost" target="_blank" rel="noopener">WhatsApp us</a>
+         </div>
+      </div>
+   </body>
+</html>

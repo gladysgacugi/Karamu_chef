@@ -1,0 +1,39 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Inbox<small>Messages from the contact form</small></h1>
+<div class="mkpills dbtabs tmtabs">
+   <a href="?" class="{% if not show_all %}active{% endif %}">To reply <span>{{ waiting.inbox }}</span></a>
+   <a href="?show=all" class="{% if show_all %}active{% endif %}">All</a>
+</div>
+
+{% for msg in inbox %}
+<div class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ msg.name }}</span>
+      <span class="bkstatus {% if msg.is_handled %}bk-completed{% else %}bk-new{% endif %}">{% if msg.is_handled %}Replied{% else %}{{ msg.get_subject_display }}{% endif %}</span>
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-envelope"></i>{{ msg.email }}</span>
+      {% if msg.phone %}<span><i class="fas fa-phone-alt"></i>{{ msg.phone }}</span>{% endif %}
+   </div>
+   <p class="bknotes" style="color:#444;white-space:pre-line">{{ msg.message }}</p>
+   <small class="bkwhen">Sent {{ msg.created_at|timesince }} ago</small>
+   <div class="tmrow">
+      <a class="bkbtn bkbtn-plain" href="mailto:{{ msg.email }}?subject={% filter urlencode:'' %}Re: {{ msg.get_subject_display }} - Karamu{% endfilter %}"><i class="fas fa-reply"></i>Email</a>
+      {% if msg.phone %}<a class="bkbtn bkbtn-wa" href="https://wa.me/{{ msg.phone|cut:'+' }}?text={% filter urlencode:'' %}Hi {{ msg.name }}, this is Karamu replying to your message.{% endfilter %}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>WhatsApp</a>{% endif %}
+      {% if not msg.is_handled %}
+      <form method="post" action="{% url 'team_message_replied' msg.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-check"></i>Replied</button>
+      </form>
+      {% endif %}
+   </div>
+</div>
+{% empty %}
+<div class="mkempty"><i class="fas fa-envelope-open"></i><p>{% if show_all %}No messages yet.{% else %}All caught up - nothing to reply to.{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

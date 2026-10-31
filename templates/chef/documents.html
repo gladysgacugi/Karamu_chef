@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Documents - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{% url 'chef_dashboard' %}" class="dbback"><i class="fas fa-arrow-left"></i> Back to bookings</a>
+      <span class="slbl">Chef dashboard</span>
+      <h1 class="stitle">Your <span>documents</span></h1>
+      <p class="sdesc">Only you and the Karamu team can see these. Upload a new copy when one expires or changes.</p>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      <div class="fcard dbcard dbnarrow">
+         <div class="bktop">
+            <h4 class="mb-0">Verification</h4>
+            {% if chef.is_verified %}
+            <span class="bkstatus bk-confirmed"><i class="fas fa-check-circle me-1"></i>Verified</span>
+            {% elif chef.documents_updated_at %}
+            <span class="bkstatus bk-new">Being checked</span>
+            {% else %}
+            <span class="bkstatus bk-completed">Not verified</span>
+            {% endif %}
+         </div>
+         <p class="acsub">{% if chef.is_verified %}Customers see a "verified" badge on your profile.{% elif chef.documents_updated_at %}You uploaded new documents on {{ chef.documents_updated_at|date:"j M Y" }}. We'll check them and put your "verified" badge back.{% else %}Upload your ID and food handler's certificate to get a "verified" badge on your profile.{% endif %}</p>
+
+         <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}<p class="ferr mb-2"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</p>{% endfor %}
+            {% for field in form %}
+            <div class="dbitem">
+               <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+               {% if field.initial %}
+               <p class="dbfile"><i class="fas fa-file-alt"></i><a href="{{ field.initial.url }}" target="_blank" rel="noopener">View current file</a></p>
+               {% else %}
+               <p class="dbfile"><i class="fas fa-exclamation-circle"></i>Not uploaded yet</p>
+               {% endif %}
+               {{ field }}
+               <small class="achelp">PDF, JPG or PNG, up to 5 MB.{% if field.initial %} Leave empty to keep the current file.{% endif %}</small>
+               {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+            </div>
+            {% endfor %}
+            {% if chef.is_verified %}<p class="paynote"><i class="fas fa-info-circle"></i>Your "verified" badge is hidden while we check a new upload.</p>{% endif %}
+            <button type="submit" class="btn-red mt-3"><i class="fas fa-upload"></i>Upload</button>
+         </form>
+      </div>
+   </div>
+</section>
+{% endblock %}

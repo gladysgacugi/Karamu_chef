@@ -1,0 +1,27 @@
+{% comment %}
+The chef application form, on the homepage and on the Become a Chef page. Always posts to the Become a Chef page.
+{% endcomment %}
+{% if form.errors %}
+<p style="color:#b5462a;font-size:.85rem;font-weight:600;"><i class="fas fa-exclamation-circle me-1"></i>Please correct the highlighted fields below.</p>
+{% endif %}
+<form method="post" action="{% url 'become_chef' %}#apply" enctype="multipart/form-data" novalidate>
+   {% csrf_token %}
+   <div class="row g-3">
+      {% for field in form %}
+         {% if field.name == 'agreed_to_terms' %}
+         <div class="col-12">
+            <label style="font-size:.85rem;color:#555;display:flex;gap:9px;align-items:flex-start;">{{ field }} <span>{{ field.label }} <a href="{% url 'terms' %}" target="_blank" style="color:var(--primary);">Read the terms</a></span></label>
+            {% for error in field.errors %}<small style="color:#b5462a;display:block;">{{ error }}</small>{% endfor %}
+         </div>
+         {% else %}
+         <div class="{% if field.name == 'bio' or field.name == 'dish_photos' %}col-12{% else %}col-sm-6{% endif %}">
+            <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<small style="color:#999;font-size:.75rem;">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<small style="color:#b5462a;display:block;">{{ error }}</small>{% endfor %}
+         </div>
+         {% endif %}
+      {% endfor %}
+      <div class="col-12"><button type="submit" class="btn-red w-100 justify-content-center"><i class="fas fa-user-plus"></i>Submit Application</button></div>
+   </div>
+</form>

@@ -1,0 +1,25 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Chef applications{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Chef applications<small><a href="{% url 'team_chefs' %}">All chefs on the marketplace</a></small></h1>
+{% include 'team/_tabs.html' %}
+
+{% for application in applications %}
+<a href="{% url 'team_application' application.pk %}" class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ application.full_name }}</span>
+      <span class="bkstatus {% if application.status == 'pending' %}bk-new{% elif application.status == 'approved' %}bk-confirmed{% else %}bk-cancelled{% endif %}">{{ application.get_status_display }}</span>
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-utensils"></i>{{ application.get_cuisine_display }}</span>
+      <span><i class="fas fa-map-marker-alt"></i>{{ application.location }}</span>
+      <span><i class="fas fa-award"></i>{{ application.years_experience }} yr{{ application.years_experience|pluralize }} &middot; {{ application.get_chef_type_display }}</span>
+   </div>
+   <small class="bkwhen">Applied {{ application.created_at|timesince }} ago</small>
+</a>
+{% empty %}
+<div class="mkempty"><i class="fas fa-user-check"></i><p>{% if status == 'pending' %}All caught up - no applications waiting.{% else %}Nothing here.{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

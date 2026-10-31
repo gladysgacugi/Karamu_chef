@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Availability - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{% url 'chef_dashboard' %}" class="dbback"><i class="fas fa-arrow-left"></i> Back to bookings</a>
+      <span class="slbl">Chef dashboard</span>
+      <h1 class="stitle">Your <span>availability</span></h1>
+      <p class="sdesc">Customers can't book you on days you're away, or at a time you already have a confirmed booking.</p>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      <div class="row g-4">
+         <div class="col-lg-6">
+            <div class="fcard dbcard">
+               <h4>New bookings</h4>
+               {% if chef.is_accepting_bookings %}
+               <p class="acsub"><span class="bkstatus bk-confirmed">Taking bookings</span> Customers can send you booking requests.</p>
+               <form method="post" onsubmit="return confirm('Pause new bookings? Your profile stays visible but customers cannot send requests.');">
+                  {% csrf_token %}
+                  <input type="hidden" name="accepting" value="0"/>
+                  <button type="submit" class="bkbtn bkbtn-ghost w-auto"><i class="fas fa-pause"></i>Pause new bookings</button>
+               </form>
+               <small class="achelp">Bookings you've already confirmed are not affected.</small>
+               {% else %}
+               <p class="acsub"><span class="bkstatus bk-new">Paused</span> Customers can see your profile but can't send requests.</p>
+               <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="accepting" value="1"/>
+                  <button type="submit" class="bkbtn w-auto"><i class="fas fa-play"></i>Start taking bookings</button>
+               </form>
+               {% endif %}
+            </div>
+
+            <div class="fcard dbcard mt-4">
+               <h4>Add time off</h4>
+               <form method="post" novalidate>
+                  {% csrf_token %}
+                  <div class="row g-3">
+                     {% for field in form %}
+                     <div class="{% if field.name == 'note' %}col-12{% else %}col-sm-6{% endif %}">
+                        <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text and not field.errors %}<small class="achelp">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+                     </div>
+                     {% endfor %}
+                     {% for error in form.non_field_errors %}<div class="col-12"><small class="ferr">{{ error }}</small></div>{% endfor %}
+                     <div class="col-12"><button type="submit" class="btn-red"><i class="fas fa-plane"></i>Save time off</button></div>
+                  </div>
+               </form>
+            </div>
+         </div>
+
+         <div class="col-lg-6">
+            <div class="fcard dbcard">
+               <h4>Days you're away</h4>
+               {% for t in time_off %}
+               <div class="dbitem avitem">
+                  <div>
+                     <strong>{% if t.start_date == t.end_date %}{{ t.start_date|date:"D j M Y" }}{% else %}{{ t.start_date|date:"D j M" }} - {{ t.end_date|date:"D j M Y" }}{% endif %}</strong>
+                     {% if t.note %}<small class="d-block">{{ t.note }}</small>{% endif %}
+                  </div>
+                  <form method="post" action="{% url 'chef_time_off_delete' t.pk %}">
+                     {% csrf_token %}
+                     <button type="submit" class="bkbtn bkbtn-ghost w-auto"><i class="fas fa-trash-alt"></i>Remove</button>
+                  </form>
+               </div>
+               {% empty %}
+               <p class="acsub mb-0">No time off planned. You can be booked any day.</p>
+               {% endfor %}
+            </div>
+
+            <div class="fcard dbcard mt-4">
+               <h4>Confirmed bookings coming up</h4>
+               {% for booking in upcoming %}
+               <div class="dbitem">
+                  <strong>{{ booking.event_date|date:"D j M" }}</strong> &middot; {{ booking.get_time_slot_display }}
+                  <small class="d-block">{{ booking.full_name }}, {{ booking.guests }} guest{{ booking.guests|pluralize }} &middot; {{ booking.location }}</small>
+               </div>
+               {% empty %}
+               <p class="acsub mb-0">No confirmed bookings yet.</p>
+               {% endfor %}
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+{% endblock %}

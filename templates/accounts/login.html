@@ -1,0 +1,26 @@
+{% extends 'accounts/auth_base.html' %}
+{% comment %}Customer | Chef tabs (?role=) change the wording only: both post to the same login, which sends each user home.{% endcomment %}
+
+{% block title %}Log in - Karamu{% endblock %}
+{% block eyebrow %}Welcome back{% endblock %}
+{% block heading %}Log in to <span>Karamu</span>{% endblock %}
+
+{% block card %}
+<nav class="actabs" aria-label="Log in as">
+   <a href="{% url 'login' %}?role=customer{% if next %}&next={{ next|urlencode }}{% endif %}"{% if request.GET.role != 'chef' %} class="active" aria-current="page"{% endif %}><i class="fas fa-user"></i>Customer</a>
+   <a href="{% url 'login' %}?role=chef{% if next %}&next={{ next|urlencode }}{% endif %}"{% if request.GET.role == 'chef' %} class="active" aria-current="page"{% endif %}><i class="fas fa-utensils"></i>Chef</a>
+</nav>
+<p class="acsub">{% if request.GET.role == 'chef' %}Manage your profile, menu and booking requests.{% else %}See and manage your bookings.{% endif %}</p>
+<form method="post" novalidate>
+   {% csrf_token %}
+   <input type="hidden" name="next" value="{{ next }}"/>
+   {% include 'accounts/_form_fields.html' %}
+   <div class="acrow"><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+   <button type="submit" class="btn-red w-100 justify-content-center"><i class="fas fa-sign-in-alt"></i>{% if request.GET.role == 'chef' %}Log in as a chef{% else %}Log in{% endif %}</button>
+</form>
+{% if request.GET.role == 'chef' %}
+<p class="acfoot">Not a chef partner yet? <a href="{% url 'become_chef' %}">Apply to become a chef</a>. We'll email your login once you're approved.</p>
+{% else %}
+<p class="acfoot">New here? <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create a customer account</a></p>
+{% endif %}
+{% endblock %}

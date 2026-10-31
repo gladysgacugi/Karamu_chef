@@ -1,0 +1,100 @@
+{% extends 'team/base.html' %}
+
+{% block title %}{{ application.full_name }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'team_applications' %}" class="dbback"><i class="fas fa-arrow-left me-1"></i>Applications</a>
+<h1 class="tmtitle">{{ application.full_name }}<small>Applied {{ application.created_at|date:"j M Y" }} &middot; {{ application.get_status_display }}</small></h1>
+
+<div class="tmrow mt-0 mb-3">
+   <a class="bkbtn bkbtn-wa" href="https://wa.me/{{ application.phone|cut:'+' }}?text={% filter urlencode:'' %}Hi {{ application.full_name }}, this is Karamu about your chef application.{% endfilter %}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+   <a class="bkbtn bkbtn-plain" href="tel:{{ application.phone }}"><i class="fas fa-phone-alt"></i>Call</a>
+   <a class="bkbtn bkbtn-plain" href="mailto:{{ application.email }}"><i class="fas fa-envelope"></i>Email</a>
+</div>
+
+<div class="tmcard">
+   <h2 class="tmsub mb-0">Documents</h2>
+   <p class="tmnote mt-1 mb-2">Tap to open. Check the ID name matches the application.</p>
+   <div class="tmdocs">
+      <a href="{{ application.national_id.url }}" target="_blank" rel="noopener"><i class="fas fa-id-card"></i>National ID</a>
+      <a href="{{ application.food_handler_certificate.url }}" target="_blank" rel="noopener"><i class="fas fa-certificate"></i>Food handler's cert</a>
+   </div>
+</div>
+
+{% with photos=application.dish_photos.all %}
+{% if photos %}
+<div class="tmcard">
+   <h2 class="tmsub">Dish photos</h2>
+   <div class="tmphotos">
+      {% for photo in photos %}<a href="{{ photo.image.url }}" target="_blank" rel="noopener"><img src="{{ photo.image.url }}" alt="Dish photo {{ forloop.counter }}"/></a>{% endfor %}
+   </div>
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="tmcard">
+   <h2 class="tmsub mb-0">Details</h2>
+   <dl class="tmdl">
+      <dt>Phone (M-Pesa)</dt><dd>{{ application.phone }}</dd>
+      <dt>Email</dt><dd>{{ application.email }}</dd>
+      <dt>Location</dt><dd>{{ application.location }}</dd>
+      <dt>Type</dt><dd>{{ application.get_chef_type_display }}, {{ application.years_experience }} year{{ application.years_experience|pluralize }} experience</dd>
+      <dt>Services</dt><dd>{{ application.get_services_display }}</dd>
+      <dt>Main cuisine</dt><dd>{{ application.get_cuisine_display }}</dd>
+      <dt>About them</dt><dd>{{ application.bio }}</dd>
+      {% if application.admin_notes %}<dt>Team notes</dt><dd>{{ application.admin_notes }}</dd>{% endif %}
+      {% if application.decision_message %}<dt>{% if application.status == 'rejected' %}Reason we gave{% else %}Welcome message sent{% endif %}</dt><dd>{{ application.decision_message|linebreaksbr }}</dd>{% endif %}
+   </dl>
+</div>
+
+{% if chef %}
+<div class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ chef.name }}</span>
+      <span class="bkstatus {% if chef.is_active %}bk-confirmed{% else %}bk-new{% endif %}">{% if chef.is_active %}Live{% else %}Not live yet{% endif %}</span>
+   </div>
+   <p class="tmnote mt-0">
+      {% if chef.user_id %}Login sent to {{ chef.email }}.{% else %}No login yet.{% endif %}
+      {% if not chef.is_active %}Check they have added a photo, packages and prices before putting the profile live.{% endif %}
+   </p>
+   <div class="tmrow">
+      <a class="bkbtn bkbtn-plain" href="{{ chef.get_absolute_url }}" target="_blank" rel="noopener"><i class="fas fa-eye"></i>View profile</a>
+      <form method="post" action="{% url 'team_chef_live' chef.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         {% if chef.is_active %}
+         <input type="hidden" name="live" value="0"/>
+         <button type="submit" class="bkbtn bkbtn-ghost" onclick="return confirm('Hide {{ chef.name|escapejs }} from the marketplace?');"><i class="fas fa-eye-slash"></i>Hide</button>
+         {% else %}
+         <input type="hidden" name="live" value="1"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-rocket"></i>Put live</button>
+         {% endif %}
+      </form>
+   </div>
+</div>
+{% else %}
+<div class="tmcard">
+   <h2 class="tmsub">Decision</h2>
+   <form method="post" action="{% url 'team_approve_application' application.pk %}" onsubmit="return confirm('Approve {{ application.full_name|escapejs }}? They will get a welcome email with their login.');">
+      {% csrf_token %}
+      <label class="flbl" for="{{ approve_form.message.id_for_label }}">{{ approve_form.message.label }}</label>
+      {{ approve_form.message }}
+      <p class="tmnote mt-1">{{ approve_form.message.help_text }}</p>
+      <div class="tmrow"><button type="submit" class="bkbtn bkbtn-big"><i class="fas fa-check"></i>Approve &amp; send login</button></div>
+   </form>
+   <p class="tmnote">Approving creates their chef profile (hidden until you put it live) and emails them a link to set their password.</p>
+   {% if application.status != 'rejected' %}
+   <details class="mt-3">
+      <summary>Reject this application</summary>
+      <form method="post" action="{% url 'team_reject_application' application.pk %}" onsubmit="return confirm('Reject {{ application.full_name|escapejs }}? They will be emailed.');">
+         {% csrf_token %}
+         <label class="flbl" for="{{ reject_form.reason.id_for_label }}">{{ reject_form.reason.label }}</label>
+         {{ reject_form.reason }}
+         <p class="tmnote mt-1">{{ reject_form.reason.help_text }}</p>
+         <div class="tmrow"><button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-times"></i>Reject &amp; email them</button></div>
+      </form>
+   </details>
+   {% endif %}
+</div>
+{% endif %}
+{% endblock %}

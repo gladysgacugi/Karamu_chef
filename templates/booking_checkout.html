@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Pay for your booking - Karamu{% endblock %}
+
+{% block whatsapp_text %}Hi Karamu, I need help paying for booking {{ booking.payment_reference }} with {{ booking.chef.name }}.{% endblock %}
+
+{% block content %}
+<section class="acwrap">
+   <div class="container">
+      <div class="fcard bkconf">
+         <a href="{% url 'booking_confirmation' booking.pk %}" class="dbback"><i class="fas fa-arrow-left me-1"></i>Back to your booking</a>
+         <span class="slbl d-block">Booking {{ booking.payment_reference }}</span>
+         <h1 class="actitle">Pay with <span>M-Pesa</span></h1>
+
+         <div class="paybox">
+            <div class="payrow"><span>{{ booking.chef.name }} &middot; {{ booking.package.name|default:"Custom request" }}</span></div>
+            <div class="payrow"><span>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }} &middot; {{ booking.guests }} guest{{ booking.guests|pluralize }}</span></div>
+            <div class="payrow paytotal"><span>Amount to pay</span><strong>KSh {{ booking.price|floatformat:"0g" }}</strong></div>
+         </div>
+
+         <h4 class="bkconfhd">1. Send the money</h4>
+         {% if paybill %}
+         <ol class="paysteps">
+            <li>Open <strong>M-Pesa</strong> and choose <strong>Lipa na M-Pesa &rsaquo; Pay Bill</strong></li>
+            <li>Business number: <strong class="paycode">{{ paybill }}</strong></li>
+            <li>Account number: <strong class="paycode">{{ booking.payment_reference }}</strong></li>
+            <li>Amount: <strong>KSh {{ booking.price|floatformat:"0g" }}</strong></li>
+            <li>Check the business name is <strong>Karamu</strong>, then enter your PIN</li>
+         </ol>
+         {% else %}
+         <p class="acsub">WhatsApp us on <a href="{{ whatsapp_url }}" target="_blank" rel="noopener">{{ whatsapp_display }}</a> with your booking reference <strong>{{ booking.payment_reference }}</strong> and we'll send you the M-Pesa payment details.</p>
+         {% endif %}
+         <p class="paynote"><i class="fas fa-shield-alt"></i>Only pay to the details on this page. Karamu will never ask you to send money to a personal number.</p>
+
+         <h4 class="bkconfhd">2. Enter your M-Pesa code</h4>
+         <p class="acsub">You'll get an SMS from M-Pesa starting with a code like <strong>SJK4H7L2QP</strong>. Enter it here so we can match your payment.</p>
+         <form method="post" novalidate>
+            {% csrf_token %}
+            <label class="flbl" for="{{ form.mpesa_code.id_for_label }}">{{ form.mpesa_code.label }}</label>
+            {{ form.mpesa_code }}
+            {% for error in form.mpesa_code.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+            <button type="submit" class="btn-red w-100 justify-content-center mt-3"><i class="fas fa-check"></i>I've paid - send my code</button>
+         </form>
+      </div>
+   </div>
+</section>
+{% endblock %}

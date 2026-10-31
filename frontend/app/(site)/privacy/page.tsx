@@ -1,0 +1,70 @@
+// Django: pages/privacy.html
+import type { Metadata } from "next";
+import { getSite } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Karamu",
+  description: "How Karamu collects, uses and protects your personal data, and the cookies we use.",
+};
+
+export default async function Privacy() {
+  const site = await getSite();
+  return (
+    <section className="lgwrap">
+      <div className="container">
+        <div className="lgcard fcard">
+          <span className="slbl">Karamu</span>
+          <h1 className="actitle">Privacy <span>Policy</span></h1>
+          <p className="lgupdated">Last updated: 29 October 2026</p>
+
+          <p>Karamu (&quot;we&quot;, &quot;us&quot;) runs a marketplace that connects customers with independent chefs in Kenya. This policy explains what personal data we collect, why we collect it and the choices you have. We handle personal data in line with the Kenya Data Protection Act, 2019.</p>
+
+          <h2>What we collect</h2>
+          <ul>
+            <li><strong>Customers:</strong> your name, phone number, email address, event location, booking details (date, time, guests, special requests such as allergies) and, if you create an account, your login details.</li>
+            <li><strong>Payments:</strong> the agreed price, whether you have paid, the M-Pesa transaction code you give us and when we confirmed it. We never see or store your M-Pesa PIN.</li>
+            <li><strong>Chefs and applicants:</strong> your name, phone (M-Pesa) number, email, location, cooking profile, a copy of your national ID, your food handler&apos;s certificate, photos of your dishes, and the dates you tell us you are unavailable.</li>
+            <li><strong>Reviews:</strong> the name you give, your rating, your comment and which booking the review is about.</li>
+            <li><strong>Messages and newsletter:</strong> what you send through our contact form, and your email address if you subscribe.</li>
+          </ul>
+
+          <h2>How we use it</h2>
+          <ul>
+            <li>To pass your booking request to the chef, confirm it and contact you about it by SMS, WhatsApp or email, including a reminder the day before your booking.</li>
+            <li>To match your M-Pesa payment to your booking, confirm it to you and the chef, and send refunds.</li>
+            <li>To check that reviews come from real bookings before we publish them.</li>
+            <li>To check that chefs are who they say they are and hold a valid food handler&apos;s certificate before their profile goes live.</li>
+            <li>To answer your messages and send you the newsletter you signed up for.</li>
+            <li>To keep the marketplace safe, prevent fraud and meet our legal obligations.</li>
+          </ul>
+          <p>We do not sell your personal data.</p>
+
+          <h2>Who can see it</h2>
+          <ul>
+            <li><strong>The chef you book</strong> sees your name, event location, booking details, the agreed price and whether you have paid. They see your phone number once they confirm the booking.</li>
+            <li><strong>Customers</strong> see a chef&apos;s public profile: display name, photo, bio, area, menus, prices, the dates they are away and published reviews (the reviewer&apos;s name, rating and comment). A chef&apos;s ID, certificate, phone number, email and the reasons for their time off are never shown publicly.</li>
+            <li><strong>Our team</strong> sees everything above in order to run the service.</li>
+            <li><strong>Service providers</strong> that help us run the site, such as our email provider and Meta (WhatsApp Business), only to deliver messages for us. Payments go through Safaricom M-Pesa, which handles them under its own privacy policy.</li>
+          </ul>
+
+          <h2>How long we keep it</h2>
+          <p>We keep booking, payment and account details for as long as your account is open or as needed for accounting, tax and legal purposes. Chef application documents are kept while the chef is on the marketplace. If your application is rejected, you can ask us to delete them at any time. You can unsubscribe from the newsletter at any time.</p>
+
+          <h2>Your rights</h2>
+          <p>You can ask us to show you the personal data we hold about you, correct it, delete it, or stop using it for a particular purpose. Email <a href="mailto:hello@simplychefke.com">hello@simplychefke.com</a> or WhatsApp <a href={site.whatsapp_url} target="_blank" rel="noopener">{site.whatsapp_display}</a>. If you are not happy with our answer, you can complain to the Office of the Data Protection Commissioner (ODPC).</p>
+
+          <h2 id="cookies">Cookies</h2>
+          <p>We only use the cookies the site needs to work:</p>
+          <ul>
+            <li><strong>csrftoken</strong> protects our forms from being submitted by other websites.</li>
+            <li><strong>sessionid</strong> keeps you logged in, remembers messages such as &quot;booking request sent&quot; and lets you reopen the bookings you made in this browser without an account. It is only set when you log in, submit a form or open a link from one of our booking emails.</li>
+          </ul>
+          <p>We do not use advertising or tracking cookies. Our pages load fonts from Google Fonts, which means Google receives your IP address when you visit.</p>
+
+          <h2>Changes</h2>
+          <p>If we change this policy we will update the date at the top of this page. For important changes we will also let account holders know by email.</p>
+        </div>
+      </div>
+    </section>
+  );
+}

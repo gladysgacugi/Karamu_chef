@@ -1,0 +1,49 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Find-a-chef requests{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Find-a-chef requests<small>Customers who want you to pick a chef for them</small></h1>
+{% include 'team/_tabs.html' %}
+
+{% for match in match_requests %}
+<div class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ match.full_name }}</span>
+      <span class="bkstatus {% if match.status == 'new' %}bk-new{% elif match.status == 'matched' %}bk-confirmed{% else %}bk-completed{% endif %}">{{ match.get_status_display }}</span>
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-glass-cheers"></i>{{ match.get_occasion_display }}</span>
+      <span><i class="fas fa-calendar"></i>{{ match.event_date|date:"D j M Y" }}, {{ match.get_time_slot_display }}</span>
+      <span><i class="fas fa-users"></i>{{ match.get_guests_display }}</span>
+      <span><i class="fas fa-utensils"></i>{{ match.get_cuisine_display|default:"Chef decides" }}</span>
+      <span><i class="fas fa-map-marker-alt"></i>{{ match.location }}</span>
+      <span><i class="fas fa-phone-alt"></i>{{ match.phone }}</span>
+   </div>
+   {% if match.notes %}<p class="bknotes"><strong>Requests:</strong> {{ match.notes }}</p>{% endif %}
+   <small class="bkwhen">Sent {{ match.created_at|timesince }} ago</small>
+   <div class="tmrow">
+      <a class="bkbtn bkbtn-wa" href="https://wa.me/{{ match.phone|cut:'+' }}?text={% filter urlencode:'' %}Hi {{ match.full_name }}, this is Karamu about your {{ match.get_occasion_display|lower }} on {{ match.event_date|date:'j M' }}.{% endfilter %}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+      <a class="bkbtn bkbtn-plain" href="tel:{{ match.phone }}"><i class="fas fa-phone-alt"></i>Call</a>
+   </div>
+   {% if match.status == 'new' %}
+   <div class="tmrow">
+      <form method="post" action="{% url 'team_request_status' match.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="status" value="matched"/>
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-handshake"></i>Matched</button>
+      </form>
+      <form method="post" action="{% url 'team_request_status' match.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="status" value="closed"/>
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-archive"></i>Close</button>
+      </form>
+   </div>
+   {% endif %}
+</div>
+{% empty %}
+<div class="mkempty"><i class="fas fa-concierge-bell"></i><p>{% if status == 'new' %}All caught up - no new requests.{% else %}Nothing here.{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

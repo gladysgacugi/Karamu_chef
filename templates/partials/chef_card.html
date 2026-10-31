@@ -1,0 +1,21 @@
+<a href="{{ chef.get_absolute_url }}" class="mkcard">
+   <div class="mkimg">
+      <img src="{{ chef.photo_url }}" alt="{{ chef.name }}" loading="lazy"/>
+      {% if chef.is_verified %}<span class="mkbadge"><i class="fas fa-check-circle"></i> Verified</span>{% endif %}
+   </div>
+   <div class="mkbody">
+      <div class="mkrow">
+         <div class="mknm">{{ chef.name }}</div>
+         <div class="mkrate">
+            {% if chef.review_count %}<i class="fas fa-star"></i> {{ chef.avg_rating|floatformat:1 }} <span>({{ chef.review_count }})</span>{% else %}<span class="mknew">New</span>{% endif %}
+         </div>
+      </div>
+      <div class="mkhead">{{ chef.headline }}</div>
+      <div class="mkloc"><i class="fas fa-map-marker-alt"></i>{% if chef.area %}{{ chef.area }}, {% endif %}{{ chef.city.name }}</div>
+      <div class="mktags">{% for s in chef.services.all|slice:":2" %}<span>{{ s.name }}</span>{% endfor %}</div>
+      <div class="mkfoot">
+         <div class="mkprice">From <strong>KSh {{ chef.starting_price|floatformat:"0g" }}</strong> <small>{{ chef.price_unit }}</small></div>
+         <span class="mkview">View <i class="fas fa-arrow-right"></i></span>
+      </div>
+   </div>
+</a>

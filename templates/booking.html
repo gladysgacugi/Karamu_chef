@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Book {{ chef.name }} - Karamu{% endblock %}
+{% block description %}Request a booking with {{ chef.name }}, {{ chef.get_cuisine_display }} chef in {{ chef.city.name }}. No payment until the chef confirms.{% endblock %}
+
+{% block whatsapp_text %}Hi Karamu, I'd like help booking {{ chef.name }}.{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{{ chef.get_absolute_url }}" class="dbback"><i class="fas fa-arrow-left me-1"></i>Back to {{ chef.name }}'s profile</a>
+      <span class="slbl d-block">Request a booking</span>
+      <h1 class="stitle">Book <span>{{ chef.name }}</span></h1>
+      <p class="sdesc">Tell {{ chef.name }} about your event. No payment now: the chef confirms first, then you pay securely via M-Pesa.</p>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      <div class="row g-4">
+         <div class="col-lg-7 order-2 order-lg-1">
+            <div class="fcard" id="book">
+               <h4 style="font-size:1.2rem;font-weight:800;">Your event</h4>
+               {% if not chef.is_accepting_bookings %}
+               <p class="cppaused"><i class="fas fa-pause-circle"></i>{{ chef.name }} is not taking new bookings right now. <a href="{% url 'marketplace' %}?city={{ chef.city.slug }}">See other chefs in {{ chef.city.name }}</a> or WhatsApp us and we'll help.</p>
+               {% else %}
+               {% include 'partials/time_off.html' %}
+               {% if not user.is_authenticated %}
+               <p class="cplogin"><a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Log in</a> or <a href="{% url 'signup' %}?next={{ request.get_full_path|urlencode }}">create an account</a> to fill in your details and track this booking.</p>
+               {% endif %}
+               {% include 'partials/booking_form.html' %}
+               {% endif %}
+            </div>
+         </div>
+
+         <div class="col-lg-5 order-1 order-lg-2">
+            <div class="fcard cpbook">
+               <div class="bkchef">
+                  <img src="{{ chef.photo_url }}" alt="{{ chef.name }}" class="bkphoto"/>
+                  <div>
+                     <a href="{{ chef.get_absolute_url }}" class="bkname">{{ chef.name }} {% if chef.is_verified %}<i class="fas fa-check-circle" style="color:var(--green);" title="ID & food handler's certificate verified"></i>{% endif %}</a>
+                     <div class="bkmeta">
+                        <span>{% if chef.review_count %}<i class="fas fa-star"></i>{{ chef.avg_rating|floatformat:1 }} ({{ chef.review_count }}){% else %}<i class="fas fa-seedling"></i>New{% endif %}</span>
+                        <span><i class="fas fa-map-marker-alt"></i>{{ chef.city.name }}</span>
+                     </div>
+                  </div>
+               </div>
+               <div class="cpbookprice mt-3">From <strong>KSh {{ chef.starting_price|floatformat:"0g" }}</strong> <small>{{ chef.price_unit }}</small></div>
+               {% if packages %}
+               <h6 class="bkpkghd">Packages</h6>
+               {% for pkg in packages %}
+               <a href="?package={{ pkg.pk }}#book" class="bkpkg{% if form.package.value|stringformat:'s' == pkg.pk|stringformat:'s' %} on{% endif %}" data-package="{{ pkg.pk }}">
+                  <span>{{ pkg.name }}</span>
+                  <strong>KSh {{ pkg.price|floatformat:"0g" }} <small>{{ pkg.price_unit }}</small></strong>
+               </a>
+               {% endfor %}
+               {% endif %}
+               <p class="cpbooknote mt-3 mb-0"><i class="fas fa-shield-alt"></i> No payment now. {{ chef.name }} confirms first, then you pay securely via M-Pesa.</p>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+   // Picking a package fills in the form without reloading, so nothing typed is lost
+   var packageSelect = document.getElementById('{{ form.package.id_for_label }}');
+   var packageLinks = document.querySelectorAll('[data-package]');
+   function markPackage() {
+      packageLinks.forEach(function(a) { a.classList.toggle('on', a.dataset.package === packageSelect.value); });
+   }
+   // The form is hidden while the chef has paused bookings
+   if (packageSelect) {
+      packageLinks.forEach(function(a) {
+         a.addEventListener('click', function(e) {
+            e.preventDefault();
+            packageSelect.value = a.dataset.package;
+            markPackage();
+            packageSelect.scrollIntoView({behavior: 'smooth', block: 'center'});
+         });
+      });
+      packageSelect.addEventListener('change', markPackage);
+   }
+</script>
+{% endblock %}

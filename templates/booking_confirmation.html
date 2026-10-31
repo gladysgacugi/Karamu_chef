@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking with {{ booking.chef.name }} - Karamu{% endblock %}
+
+{% block whatsapp_text %}Hi Karamu, about my booking #{{ booking.pk }} with {{ booking.chef.name }} on {{ booking.event_date|date:"j M" }}.{% endblock %}
+
+{% block content %}
+<section class="acwrap">
+   <div class="container">
+      <div class="fcard bkconf">
+         {% include 'accounts/_messages.html' %}
+         {% if booking.status == 'new' %}
+         <div class="bcdone">
+            <i class="fas fa-check-circle"></i>
+            <h1 class="actitle">Booking request <span>sent!</span></h1>
+            <p>{{ booking.chef.name }} will confirm their availability and the price. We'll then send you a link to pay by M-Pesa{% if booking.email %} at {{ booking.email }}{% endif %}.</p>
+         </div>
+         {% else %}
+         <span class="slbl">Booking #{{ booking.pk }}</span>
+         <h1 class="actitle">Your booking with <span>{{ booking.chef.name }}</span></h1>
+         {% endif %}
+
+         <div class="bkcard mt-4 mb-0">
+            <img src="{{ booking.chef.photo_url }}" alt="{{ booking.chef.name }}" class="bkphoto"/>
+            <div class="bkinfo">
+               <div class="bktop">
+                  <a href="{{ booking.chef.get_absolute_url }}" class="bkname">{{ booking.chef.name }}</a>
+                  <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+               </div>
+               <div class="bkmeta">
+                  <span><i class="fas fa-hashtag"></i>Booking {{ booking.pk }}</span>
+                  <span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }}</span>
+                  <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+                  <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+                  <span><i class="fas fa-utensils"></i>{% if booking.package %}{{ booking.package.name }} (KSh {{ booking.package.price|floatformat:"0g" }} {{ booking.package.price_unit }}){% else %}Custom request{% endif %}</span>
+               </div>
+               {% if booking.notes %}<p class="bknotes">{{ booking.notes }}</p>{% endif %}
+            </div>
+         </div>
+
+         {% if booking.price %}
+         <div class="paybox">
+            <div class="payrow">
+               <span>Agreed price</span>
+               <strong>KSh {{ booking.price|floatformat:"0g" }}</strong>
+            </div>
+            <div class="payrow">
+               <span>Payment</span>
+               <span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>
+            </div>
+            {% if booking.customer_can_pay %}
+            <a href="{% url 'booking_checkout' booking.pk %}" class="btn-red w-100 justify-content-center mt-3"><i class="fas fa-mobile-alt"></i>Pay KSh {{ booking.price|floatformat:"0g" }} with M-Pesa</a>
+            {% elif booking.payment_status == 'submitted' %}
+            <p class="paynote"><i class="fas fa-hourglass-half"></i>We're checking your M-Pesa payment ({{ booking.mpesa_code }}). We'll email you once it's confirmed, usually within a few hours.</p>
+            {% elif booking.payment_status == 'paid' %}
+            <p class="paynote"><i class="fas fa-check-circle"></i>Paid{% if booking.paid_at %} on {{ booking.paid_at|date:"j M Y" }}{% endif %}{% if booking.mpesa_code %} &middot; M-Pesa {{ booking.mpesa_code }}{% endif %}. Thank you!</p>
+            {% elif booking.payment_status == 'refunded' %}
+            <p class="paynote"><i class="fas fa-undo"></i>Your payment was refunded to {{ booking.phone }}.</p>
+            {% endif %}
+         </div>
+         {% endif %}
+
+         {% if booking.status == 'new' or booking.status == 'confirmed' %}
+         <h4 class="bkconfhd">What happens next</h4>
+         <ol class="bcsteps">
+            <li class="{% if booking.status == 'confirmed' %}done{% endif %}"><strong>{{ booking.chef.name }} confirms</strong>The chef checks they're free on {{ booking.event_date|date:"j M" }} and sets the price. If they can't make it, we'll help you find another chef.</li>
+            <li class="{% if booking.payment_status == 'paid' %}done{% endif %}"><strong>You pay via M-Pesa</strong>We email you a payment link once the chef confirms. Nothing is charged before that.</li>
+            <li><strong>Enjoy your meal</strong>Your chef arrives at {{ booking.location }} for {{ booking.get_time_slot_display|lower }}. We'll remind you the day before.</li>
+         </ol>
+         {% elif booking.can_be_reviewed %}
+         <div class="rvform">
+            <h6>How was the food?</h6>
+            <p class="acsub">Your review helps other customers and helps {{ booking.chef.name }} get more bookings.</p>
+            <a href="{% url 'booking_review' booking.pk %}" class="btn-red"><i class="fas fa-star"></i>Review {{ booking.chef.name }}</a>
+         </div>
+         {% elif booking.review %}
+         <p class="paynote mt-3"><i class="fas fa-star"></i>Thanks for reviewing {{ booking.chef.name }}{% if booking.review.status == 'pending' %}. It will appear on their profile once our team has checked it{% endif %}.</p>
+         {% endif %}
+
+         <h4 class="bkconfhd">Messages with {{ booking.chef.name }}</h4>
+         {% include '_booking_messages.html' with viewer='customer' %}
+
+         <div class="bkconfbtns">
+            {% if is_owner %}
+            <a href="{% url 'account' %}" class="btn-red"><i class="fas fa-receipt"></i>My bookings</a>
+            {% else %}
+            <a href="{% url 'marketplace' %}" class="btn-red"><i class="fas fa-store"></i>Back to the marketplace</a>
+            {% endif %}
+            <a href="{{ whatsapp_url }}?text={% filter urlencode:'' %}Hi Karamu, about my booking #{{ booking.pk }} with {{ booking.chef.name }} on {{ booking.event_date|date:"j M" }}.{% endfilter %}" target="_blank" rel="noopener" class="bkbtn bkbtn-ghost"><i class="fab fa-whatsapp"></i>Questions? WhatsApp us</a>
+         </div>
+         {% if not user.is_authenticated %}
+         <p class="acfoot">We'll keep you updated by SMS and email. <a href="{% url 'signup' %}">Create an account</a> to track future bookings in one place.</p>
+         {% endif %}
+      </div>
+   </div>
+</section>
+{% endblock %}

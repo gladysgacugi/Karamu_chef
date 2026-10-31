@@ -1,0 +1,669 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_search %}<button id="navSearchBtn" title="Search"><i class="fas fa-search"></i></button>{% endblock %}
+
+{% block content %}
+      <!-- ============================================================
+         SEARCH OVERLAY POPUP
+         ============================================================ -->
+      <div id="searchOv">
+         <button class="sovclose" id="searchClose"><i class="fas fa-times"></i></button>
+         <div class="sovbox">
+            <h4>What are you craving today?</h4>
+            <form class="sovinput" method="get" action="{% url 'marketplace' %}">
+               <input type="text" name="q" id="searchInput" placeholder="Search nyama choma, pilau, chapati, chefs..." autocomplete="off"/>
+               <button type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+            </form>
+            <!-- Services inside search box -->
+            <div class="sovcats">
+               {% for service in services %}
+               <a class="sovcat" href="{{ service.get_absolute_url }}"><i class="fas {{ service.icon }}"></i>{{ service.name }}</a>
+               {% endfor %}
+            </div>
+            <div class="sovtrend">
+               <p><i class="fas fa-fire me-1" style="color:var(--secondary);"></i>Popular Searches</p>
+               <a class="ttag" href="{% url 'marketplace' %}?q=nyama+choma">Nyama Choma</a>
+               <a class="ttag" href="{% url 'marketplace' %}?q=pilau">Pilau</a>
+               <a class="ttag" href="{% url 'marketplace' %}?q=mukimo">Mukimo</a>
+               <a class="ttag" href="{% url 'marketplace' %}?q=chapati">Chapati</a>
+               <a class="ttag" href="{% url 'marketplace' %}?q=biryani">Biryani</a>
+               <a class="ttag" href="{% url 'marketplace' %}?q=birthday">Birthday</a>
+            </div>
+         </div>
+      </div>
+      <!-- ============================================================
+         HERO
+         ============================================================ -->
+      <section id="hero">
+         <div class="hs hs1"></div>
+         <div class="hs hs2"></div>
+         <div class="hbgtxt">CHEF</div>
+         <div class="container">
+            <div class="row align-items-center g-5" style="min-height:88vh;">
+               <div class="col-lg-6">
+                  <div class="hbadge">
+                     <div class="hbi"><i class="fas fa-star"></i></div>
+                     <span>Kenya's Home-Chef Marketplace</span>
+                  </div>
+                  <h1 class="htitle">Your Chef is <span class="hl">One Tap</span><br/>Away</h1>
+                  <p class="hdesc">Book a local chef to cook at your home, party or event, or to prep your family's meals for the week. Compare real menus and prices, send a request, and pay with M-Pesa once your chef confirms.</p>
+                  <div class="d-flex flex-wrap gap-3 mb-2">
+                     <a href="#menu" class="btn-red"><i class="fas fa-utensils"></i>See Chef Packages</a>
+                     <a href="{% url 'marketplace' %}" class="btn-play">
+                        <div class="pico"><i class="fas fa-user-tie"></i></div>
+                        <span>Find a Private Chef</span>
+                     </a>
+                  </div>
+                  {% if stats.chefs %}
+                  <!-- Live counts from the database -->
+                  <div class="hstats d-flex gap-3 flex-wrap mt-4">
+                     <div class="hstat"><span class="snum">{{ stats.chefs }}</span><small>Chef{{ stats.chefs|pluralize }} Live</small></div>
+                     {% if stats.verified %}<div class="sdiv"></div>
+                     <div class="hstat"><span class="snum">{{ stats.verified }}</span><small>ID &amp; Certificate Checked</small></div>{% endif %}
+                     {% if stats.packages %}<div class="sdiv"></div>
+                     <div class="hstat"><span class="snum">{{ stats.packages }}</span><small>Package{{ stats.packages|pluralize }} to Book</small></div>{% endif %}
+                     <div class="sdiv"></div>
+                     <div class="hstat"><span class="snum">{{ stats.cities }}</span><small>Cit{{ stats.cities|pluralize:"y,ies" }}</small></div>
+                  </div>
+                  {% endif %}
+               </div>
+               <div class="col-lg-6">
+                  <div style="position:relative;text-align:center;">
+                     <div class="hcircle">
+                        <img src="{% static 'img/banner-img.jpg' %}" alt="Home-cooked meal"/>
+                     </div>
+                     <div class="fcard fc1">
+                        <div class="fcoi r"><i class="fas fa-user-check"></i></div>
+                        <div><span class="fcnum">Verified</span><span class="fcsm">Vetted local chefs</span></div>
+                     </div>
+                     <div class="fcard fc2">
+                        <div class="fcoi y"><i class="fas fa-mobile-alt"></i></div>
+                        <div><span class="fcnum">M-Pesa</span><span class="fcsm">Pay after confirmation</span></div>
+                     </div>
+                     <div class="fcard fc3">
+                        <div class="fcoi g"><i class="fas fa-tags"></i></div>
+                        <div><span class="fcnum">Clear Prices</span><span class="fcsm">See menus before you book</span></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <!-- MARQUEE -->
+      <div class="mqsec">
+         <div class="mqtrack">
+            <div class="mqitem"><i class="fas fa-circle"></i>Nyama Choma</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Chicken Pilau</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Mukimo &amp; Beef Stew</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Soft Layered Chapati</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Swahili Biryani</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Mandazi &amp; Chai</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Private Chef Dinners</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Nyama Choma</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Chicken Pilau</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Mukimo &amp; Beef Stew</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Soft Layered Chapati</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Swahili Biryani</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Mandazi &amp; Chai</div>
+            <div class="mqitem"><i class="fas fa-circle"></i>Private Chef Dinners</div>
+         </div>
+      </div>
+      <!-- BROWSE BY SERVICE -->
+      <section id="category">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">The Chef Marketplace</span>
+               <h2 class="stitle">Browse by <span>Service</span></h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:520px;">Private chefs, caterers, meal prep and more. Compare real profiles, menus and prices, then book in minutes.</p>
+            </div>
+            <div class="row g-4">
+               {% for service in services %}
+               <div class="col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="{% cycle 0 80 160 %}">
+                  <a href="{{ service.get_absolute_url }}" class="svcard">
+                     <div class="svico"><i class="fas {{ service.icon }}"></i></div>
+                     <div>
+                        <div class="svnm">{{ service.name }}</div>
+                        <p class="svdesc">{{ service.description }}</p>
+                        <div class="svprice">From KSh {{ service.starting_price|floatformat:"0g" }} <small>{{ service.price_unit }}</small></div>
+                     </div>
+                     <i class="fas fa-arrow-right svarrow"></i>
+                  </a>
+               </div>
+               {% endfor %}
+            </div>
+            <div class="row g-4 mt-4">
+               <div class="col-6 col-lg-3" data-aos="fade-up"><div class="whyitem"><i class="fas fa-id-badge"></i><strong>Real Profiles</strong><span>See menus, photos and prices before you book.</span></div></div>
+               <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="80"><div class="whyitem"><i class="fas fa-star"></i><strong>Genuine Reviews</strong><span>Every review is checked by our team.</span></div></div>
+               <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="160"><div class="whyitem"><i class="fas fa-mobile-alt"></i><strong>M-Pesa Payments</strong><span>Pay safely once your chef confirms.</span></div></div>
+               <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="240"><div class="whyitem"><i class="fas fa-headset"></i><strong>Real Support</strong><span>Call or WhatsApp us any day of the week.</span></div></div>
+            </div>
+            <div class="text-center mt-5" data-aos="fade-up">
+               <a href="{% url 'marketplace' %}" class="btn-red"><i class="fas fa-store"></i>Explore the Marketplace</a>
+            </div>
+         </div>
+      </section>
+      <!-- ABOUT -->
+      <section id="about">
+         <div class="container">
+            <div class="row align-items-center g-5">
+               <div class="col-lg-5" data-aos="fade-right">
+                  <div class="astack">
+                     <div class="aexp"><span class="anum">2</span><small>Ways to<br/>Eat Well</small></div>
+                     <div class="amain"><img src="{% static 'img/about1.jpg' %}" alt="Chef cooking"/></div>
+                     <div class="asm"><img src="{% static 'img/about2.jpg' %}" alt=""/></div>
+                  </div>
+               </div>
+               <div class="col-lg-7" data-aos="fade-left">
+                  <span class="slbl">About Karamu</span>
+                  <h2 class="stitle text-start">Talented Local Chefs,<br/><span>One Simple Marketplace</span></h2>
+                  <div class="sline lft"></div>
+                  <p class="sdesc mb-4">Karamu connects you with skilled home chefs and professional cooks across Kenya. Want home-cooked meals for the week? Book a chef to prep them for you. Hosting a dinner, birthday or office event? Book a private chef who comes to you, shops for the ingredients and cooks on site.</p>
+                  <div class="mb-4">
+                     <div class="fti">
+                        <div class="ftico r"><i class="fas fa-shopping-bag"></i></div>
+                        <div>
+                           <h6>Home-Cooked Meals &amp; Meal Prep</h6>
+                           <p>Browse chefs near you, compare their menus and prices, and book home-cooked meals for your family or your week.</p>
+                        </div>
+                     </div>
+                     <div class="fti">
+                        <div class="ftico y"><i class="fas fa-concierge-bell"></i></div>
+                        <div>
+                           <h6>Book a Private Chef</h6>
+                           <p>Hire a chef for private dinners, parties, corporate events, weekly meal prep or cooking classes, at your place.</p>
+                        </div>
+                     </div>
+                     <div class="fti">
+                        <div class="ftico g"><i class="fas fa-shield-alt"></i></div>
+                        <div>
+                           <h6>Verified Chefs &amp; Safe M-Pesa Payments</h6>
+                           <p>Every chef sends us their national ID and food handler's certificate before their profile goes live. You pay with M-Pesa only after your chef confirms.</p>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="d-flex flex-wrap gap-3">
+                     <a href="#menu" class="btn-red"><i class="fas fa-book-open"></i>Browse Packages</a>
+                     <a href="#chefs" class="btn-red"><i class="fas fa-user-tie"></i>Meet the Chefs</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <!-- ============================================================
+         CHEF PACKAGES (real packages from live chefs, filter by service)
+         ============================================================ -->
+      <section id="menu">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">Fresh From Our Chefs</span>
+               <h2 class="stitle">Popular <span>Chef</span> Packages</h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:520px;">Real menus with real prices. Pick a package and send the chef a booking request. No payment until they confirm.</p>
+            </div>
+            {% if package_services|length > 1 %}
+            <div class="text-center mb-4" data-aos="fade-up">
+               <button class="filtbtn active" data-f="all">All</button>
+               {% for service in package_services %}<button class="filtbtn" data-f="{{ service.slug }}">{{ service.name }}</button>{% endfor %}
+            </div>
+            {% endif %}
+            <div class="row g-4" id="mgrid">
+               {% for pkg in packages %}
+               <div class="col-sm-6 col-lg-4 mwrap" data-c="{{ pkg.service.slug|default:'other' }}" data-aos="fade-up" data-aos-delay="{% cycle 0 80 160 %}">
+                  <a href="{{ pkg.chef.get_absolute_url }}?package={{ pkg.pk }}#book" class="mcard pkglink">
+                     <div class="mimg">
+                        <img src="{{ pkg.chef.photo_url }}" alt="{{ pkg.chef.name }}" loading="lazy"/>
+                        {% if pkg.chef.is_verified %}<div class="mbdg new"><i class="fas fa-check-circle"></i> Verified</div>{% endif %}
+                     </div>
+                     <div class="mbody">
+                        <div class="mcat">{% if pkg.service %}{{ pkg.service.name }} &middot; {% endif %}{{ pkg.chef.name }}, {{ pkg.chef.city.name }}</div>
+                        <div class="mtit">{{ pkg.name }}</div>
+                        <div class="mdesc">{{ pkg.description|truncatechars:90 }}</div>
+                        <div class="mfoot">
+                           <div class="mprice">KSh {{ pkg.price|floatformat:"0g" }} <small style="text-decoration:none;">{{ pkg.price_unit }}</small></div>
+                           <span class="madd" title="Book this package"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                     </div>
+                  </a>
+               </div>
+               {% empty %}
+               <div class="col-12 text-center"><p class="sdesc">Our chefs are adding their menus now. <a href="{% url 'marketplace' %}">Browse chefs</a> or <a href="#reservation">tell us what you need</a> and we'll find you one.</p></div>
+               {% endfor %}
+            </div>
+            <!-- end #mgrid -->
+            <div class="text-center mt-5"><a href="{% url 'marketplace' %}" class="btn-red"><i class="fas fa-th-large"></i>Browse All Chefs</a></div>
+         </div>
+      </section>
+      <!-- SPECIAL OFFER -->
+      <section id="special">
+         <div class="spbg"></div>
+         <div class="container" style="position:relative;z-index:2;">
+            <div class="row align-items-center g-5">
+               <div class="col-lg-6" data-aos="fade-right">
+                  <div class="sptag"><i class="fas fa-calendar-alt me-1"></i>Hosting This Weekend?</div>
+                  <h2 class="sptitle">Let a<br/><span>Private Chef</span><br/>Do the Cooking</h2>
+                  <p class="spdesc">Book a Karamu private chef for dinner with family or friends. They plan the menu, shop and cook at your place. You just enjoy the meal. Weekends fill up fast, so book at least 48 hours ahead.</p>
+                  <div class="d-flex flex-wrap gap-3">
+                     <a href="{% url 'marketplace' %}?service=private-chefs" class="btn-red"><i class="fas fa-user-tie"></i>Browse Private Chefs</a>
+                     <a href="#reservation" class="btn-red"><i class="fas fa-calendar-check"></i>Help Me Choose</a>
+                  </div>
+               </div>
+               <div class="col-lg-6" data-aos="fade-left">
+                  <div class="spimgw">
+                     <div class="spglow"></div>
+                     <img src="{% static 'img/off-img.jpg' %}" alt="Private chef dinner"/>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+
+      <!-- ============================================================
+         GALLERY (click opens detail popup)
+         ============================================================ -->
+      <section id="gallery">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">From Our Chefs' Kitchens</span>
+               <h2 class="stitle">Food Made With <span>Love</span></h2>
+               <div class="sline"></div>
+            </div>
+            <div class="ggrid" data-aos="fade-up">
+               <div class="gitem"
+                  data-gi="0"
+                  data-gimg="{% static 'img/portfolio/work1.jpg' %}"
+                  data-gtitle="Nyama Choma Nights"
+                  data-gdesc="Charcoal-grilled goat and beef, prepared on site by our grill chefs for birthdays and weekend get-togethers.">
+                  <img src="{% static 'img/portfolio/work1.jpg' %}" alt="Nyama Choma"/>
+                  <div class="gover"><span><i class="fas fa-expand-alt"></i> Nyama Choma Nights</span></div>
+               </div>
+               <div class="gitem"
+                  data-gi="1"
+                  data-gimg="{% static 'img/portfolio/work2.jpg' %}"
+                  data-gtitle="Swahili Coastal Feasts"
+                  data-gdesc="Biryani, pilau, samaki wa kupaka and viazi karai - the flavours of the Kenyan coast, cooked fresh in Nairobi.">
+                  <img src="{% static 'img/portfolio/work2.jpg' %}" alt="Swahili food"/>
+                  <div class="gover"><span><i class="fas fa-expand-alt"></i> Swahili Coastal Feasts</span></div>
+               </div>
+               <div class="gitem"
+                  data-gi="2"
+                  data-gimg="{% static 'img/portfolio/work3.jpg' %}"
+                  data-gtitle="Private Dinners at Home"
+                  data-gdesc="Intimate dinners for couples and families, with a chef who plans the menu, cooks and cleans up after.">
+                  <img src="{% static 'img/portfolio/work3.jpg' %}" alt="Private dinner"/>
+                  <div class="gover"><span><i class="fas fa-expand-alt"></i> Private Dinners at Home</span></div>
+               </div>
+               <div class="gitem"
+                  data-gi="3"
+                  data-gimg="{% static 'img/portfolio/work4.jpg' %}"
+                  data-gtitle="Events &amp; Celebrations"
+                  data-gdesc="From ruracio and weddings to office parties, our chefs cater events of every size.">
+                  <img src="{% static 'img/portfolio/work4.jpg' %}" alt="Events catering"/>
+                  <div class="gover"><span><i class="fas fa-expand-alt"></i> Events &amp; Celebrations</span></div>
+               </div>
+               <div class="gitem"
+                  data-gi="4"
+                  data-gimg="{% static 'img/portfolio/work5.jpg' %}"
+                  data-gtitle="Weekly Meal Prep"
+                  data-gdesc="Healthy, home-cooked meals prepared for the whole week, so your family eats well even on busy days.">
+                  <img src="{% static 'img/portfolio/work5.jpg' %}" alt="Meal prep"/>
+                  <div class="gover"><span><i class="fas fa-expand-alt"></i> Weekly Meal Prep</span></div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <!-- GALLERY POPUP -->
+      <div id="galPop">
+         <div class="gpbox">
+            <button class="gpclose" id="gpClose"><i class="fas fa-times"></i></button>
+            <img id="gpImg" src="" alt=""/>
+            <div class="gpcap">
+               <h5 id="gpTitle"></h5>
+               <p id="gpDesc"></p>
+            </div>
+            <div class="gpnav">
+               <button id="gpPrev"><i class="fas fa-chevron-left me-1"></i>Prev</button>
+               <button id="gpNext">Next <i class="fas fa-chevron-right ms-1"></i></button>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- ============================================================
+         HOW IT WORKS (alternating timeline)
+         ============================================================ -->
+      <section id="history">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">How It Works</span>
+               <h2 class="stitle">Book a Chef in <span>4 Easy Steps</span></h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:480px;">Whether it's a quiet dinner for two or a party for fifty, getting a great chef takes just a few taps.</p>
+            </div>
+            <div class="timeline" data-aos="fade-up">
+               <div class="tli">
+                  <div class="tl-left">
+                     <div class="tlyear">Step 1</div>
+                     <h5>Tell Us the Occasion</h5>
+                     <p>Share the date, location, number of guests and the kind of food you love - private dinner, party, meal prep or a cooking class.</p>
+                  </div>
+                  <div class="tl-center">
+                     <div class="tldot"></div>
+                  </div>
+                  <div class="tl-right">
+                     <div class="tlyear">Step 1</div>
+                     <h5>Tell Us the Occasion</h5>
+                     <p>Share the date, location, number of guests and the kind of food you love - private dinner, party, meal prep or a cooking class.</p>
+                  </div>
+               </div>
+               <div class="tli">
+                  <div class="tl-left">
+                     <div class="tlyear">Step 2</div>
+                     <h5>Pick Your Chef</h5>
+                     <p>Compare verified chefs by cuisine, reviews and price, or let us match you with the best available chef near you.</p>
+                  </div>
+                  <div class="tl-center">
+                     <div class="tldot"></div>
+                  </div>
+                  <div class="tl-right">
+                     <div class="tlyear">Step 2</div>
+                     <h5>Pick Your Chef</h5>
+                     <p>Compare verified chefs by cuisine, reviews and price, or let us match you with the best available chef near you.</p>
+                  </div>
+               </div>
+               <div class="tli">
+                  <div class="tl-left">
+                     <div class="tlyear">Step 3</div>
+                     <h5>Confirm &amp; Pay with M-Pesa</h5>
+                     <p>Your chef confirms their availability and agrees the menu with you. We then send you the M-Pesa payment details to lock in your booking.</p>
+                  </div>
+                  <div class="tl-center">
+                     <div class="tldot"></div>
+                  </div>
+                  <div class="tl-right">
+                     <div class="tlyear">Step 3</div>
+                     <h5>Confirm &amp; Pay with M-Pesa</h5>
+                     <p>Your chef confirms their availability and agrees the menu with you. We then send you the M-Pesa payment details to lock in your booking.</p>
+                  </div>
+               </div>
+               <div class="tli">
+                  <div class="tl-left">
+                     <div class="tlyear">Step 4</div>
+                     <h5>Sit Back &amp; Enjoy</h5>
+                     <p>Your chef arrives, cooks fresh in your kitchen, serves and cleans up. Afterwards, rate your experience to help others choose.</p>
+                  </div>
+                  <div class="tl-center">
+                     <div class="tldot"></div>
+                  </div>
+                  <div class="tl-right">
+                     <div class="tlyear">Step 4</div>
+                     <h5>Sit Back &amp; Enjoy</h5>
+                     <p>Your chef arrives, cooks fresh in your kitchen, serves and cleans up. Afterwards, rate your experience to help others choose.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+
+      <!-- FEATURED CHEFS -->
+      <section id="chefs">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">Our Chef Community</span>
+               <h2 class="stitle">Meet Our Top <span>Chefs</span></h2>
+               <div class="sline"></div>
+            </div>
+            <div class="row g-4">
+               {% for chef in featured_chefs %}
+               <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="{% cycle 0 80 160 240 %}">
+                  {% include 'partials/chef_card.html' %}
+               </div>
+               {% empty %}
+               <div class="col-12 text-center"><p class="sdesc">Our first chefs are joining now. <a href="#hours">Are you a chef? Apply today.</a></p></div>
+               {% endfor %}
+            </div>
+            <div class="text-center mt-5"><a href="{% url 'marketplace' %}" class="btn-red"><i class="fas fa-user-tie"></i>Browse All Chefs</a></div>
+         </div>
+      </section>
+
+      <!-- CHEFS BY CITY -->
+      <section id="cities">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">Near You</span>
+               <h2 class="stitle">Find Chefs in <span>Your City</span></h2>
+               <div class="sline"></div>
+            </div>
+            <div class="citygrid" data-aos="fade-up">
+               {% for city in cities %}
+               <a href="{{ city.get_absolute_url }}" class="citylink"><i class="fas fa-map-marker-alt"></i>Chefs in {{ city.name }}</a>
+               {% endfor %}
+            </div>
+            <div class="text-center mt-4"><a href="{% url 'marketplace' %}" class="blmore">Browse all chefs <i class="fas fa-arrow-right"></i></a></div>
+         </div>
+      </section>
+
+
+      <!-- BECOME A CHEF -->
+      <section id="hours">
+         <div class="hrsbg"></div>
+         <div class="container" style="position:relative;z-index:2;">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl" style="color:#a5d6bc;">For Chefs</span>
+               <h2 class="stitle" style="color:#fff;">Cook. Earn. <span style="color:var(--secondary);">Grow.</span></h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:520px;color:rgba(255,255,255,.7);">Are you a professional chef or a talented home cook? Join Karamu, reach new customers and earn on your own schedule.</p>
+            </div>
+            <div class="row g-4 align-items-start">
+               <div class="col-lg-5" data-aos="fade-right">
+                  <div class="hrscard">
+                     <h5 style="color:#fff;margin-bottom:18px;font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:700;"><i class="fas fa-gift me-2" style="color:var(--secondary);"></i>Why Join</h5>
+                     <div class="hrsrow">
+                        <span class="hrsday"><i class="fas fa-store me-2" style="color:var(--secondary);"></i>Show your menus &amp; prices online</span>
+                        <div class="d-flex align-items-center gap-2"><div class="hdot on"></div></div>
+                     </div>
+                     <div class="hrsrow">
+                        <span class="hrsday"><i class="fas fa-calendar-alt me-2" style="color:var(--secondary);"></i>Get private chef &amp; event bookings</span>
+                        <div class="d-flex align-items-center gap-2"><div class="hdot on"></div></div>
+                     </div>
+                     <div class="hrsrow">
+                        <span class="hrsday"><i class="fas fa-clock me-2" style="color:var(--secondary);"></i>Set your own hours &amp; prices</span>
+                        <div class="d-flex align-items-center gap-2"><div class="hdot on"></div></div>
+                     </div>
+                     <div class="hrsrow">
+                        <span class="hrsday"><i class="fas fa-mobile-alt me-2" style="color:var(--secondary);"></i>Get paid via M-Pesa</span>
+                        <div class="d-flex align-items-center gap-2"><div class="hdot on"></div></div>
+                     </div>
+                     <div class="hrsrow">
+                        <span class="hrsday"><i class="fas fa-star me-2" style="color:var(--secondary);"></i>Build your brand with reviews</span>
+                        <div class="d-flex align-items-center gap-2"><div class="hdot on"></div></div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-3" data-aos="zoom-in">
+                  <div class="hrscta">
+                     <i class="fas fa-user-plus fa-2x mb-3" style="color:rgba(255,255,255,.8);"></i>
+                     <h4>Become a Chef</h4>
+                     <p>Apply in minutes. Once we've checked your documents, you can start taking bookings.</p>
+                     <a href="#chefForm" class="btnw">Join Now &rarr;</a>
+                  </div>
+               </div>
+               <div class="col-lg-4" data-aos="fade-left">
+                  <div class="hrscard">
+                     <h5 style="color:#fff;margin-bottom:18px;font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:700;"><i class="fas fa-clipboard-check me-2" style="color:var(--secondary);"></i>What You Need</h5>
+                     <div class="hrsrow"><span class="hrsday"><i class="fas fa-id-card me-2" style="color:var(--secondary);"></i>National ID</span><span class="hrstime" style="font-size:.8rem;">Required</span></div>
+                     <div class="hrsrow"><span class="hrsday"><i class="fas fa-file-medical me-2" style="color:var(--secondary);"></i>Food Handler's Certificate</span><span class="hrstime" style="font-size:.8rem;">Required</span></div>
+                     <div class="hrsrow"><span class="hrsday"><i class="fas fa-mobile-alt me-2" style="color:var(--secondary);"></i>M-Pesa Number</span><span class="hrstime" style="font-size:.8rem;">For payouts</span></div>
+                     <div class="hrsrow"><span class="hrsday"><i class="fas fa-camera me-2" style="color:var(--secondary);"></i>Photos of Your Dishes</span><span class="hrstime" style="font-size:.8rem;">3 - 5 photos</span></div>
+                  </div>
+               </div>
+            </div>
+            <!-- CHEF APPLICATION FORM -->
+            <div class="row justify-content-center mt-5" id="chefForm">
+               <div class="col-lg-10" data-aos="fade-up">
+                  <div class="fcard">
+                     <h4 style="font-size:1.3rem;margin-bottom:6px;">Apply to Become a Chef</h4>
+                     <p style="color:#888;font-size:.85rem;margin-bottom:22px;">Fill in your details below. Our team reviews every application before your profile goes live.</p>
+                     {% include 'partials/chef_application_form.html' with form=chef_form %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+
+      <!-- TESTIMONIALS (published reviews, 4 stars and up) -->
+      {% if reviews %}
+      <section id="testimonials">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">What People Say</span>
+               <h2 class="stitle">Loved by Our <span>Customers</span></h2>
+               <div class="sline"></div>
+            </div>
+            <div class="swiper tesSwiper" data-aos="fade-up">
+               <div class="swiper-wrapper">
+                  {% for review in reviews %}
+                  <div class="swiper-slide">
+                     <div class="tescard">
+                        <div class="tesq">"</div>
+                        <div class="tess">{% for i in "12345" %}<i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}</div>
+                        <p class="testxt">{{ review.comment|truncatechars:260 }}</p>
+                        <div class="tesauth">
+                           <div class="tesav">{{ review.customer_name|first|upper }}</div>
+                           <div>
+                              <div class="tesnm">{{ review.customer_name }}</div>
+                              <div class="tesrl">Booked <a href="{{ review.chef.get_absolute_url }}">{{ review.chef.name }}</a> &middot; {{ review.created_at|date:"M Y" }}</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  {% endfor %}
+               </div>
+               <div class="swiper-pagination mt-4" style="position:static;"></div>
+            </div>
+         </div>
+      </section>
+      {% endif %}
+
+      <!-- BOOK A CHEF FORM -->
+      <section id="reservation">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">Private Chef Service</span>
+               <h2 class="stitle">Book a <span>Private Chef</span></h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:480px;">Tell us about your occasion and we'll match you with the right chef. For events and weekend bookings, we recommend booking at least 48 hours in advance.</p>
+            </div>
+            <div class="row g-4 align-items-start">
+               <div class="col-lg-4" data-aos="fade-right">
+                  <div style="background:var(--dark);border-radius:18px;padding:36px;">
+                     <h4 style="color:#fff;font-size:1.3rem;margin-bottom:8px;">What We Offer</h4>
+                     <p style="color:rgba(255,255,255,.55);font-size:.85rem;margin-bottom:26px;">One chef, many occasions. We cook wherever you are in Nairobi and nearby areas.</p>
+                     <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                           <div style="width:46px;height:46px;border-radius:11px;background:rgba(181, 70, 42,.2);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0;"><i class="fas fa-wine-glass-alt"></i></div>
+                           <div><strong style="display:block;color:#ccc;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;">Private Dinners</strong><span style="color:#fff;font-size:.87rem;">Couples, families &amp; friends</span></div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                           <div style="width:46px;height:46px;border-radius:11px;background:rgba(181, 70, 42,.2);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0;"><i class="fas fa-birthday-cake"></i></div>
+                           <div><strong style="display:block;color:#ccc;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;">Parties &amp; Events</strong><span style="color:#fff;font-size:.87rem;">Birthdays, ruracio, office parties</span></div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                           <div style="width:46px;height:46px;border-radius:11px;background:rgba(181, 70, 42,.2);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0;"><i class="fas fa-box-open"></i></div>
+                           <div><strong style="display:block;color:#ccc;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;">Meal Prep</strong><span style="color:#fff;font-size:.87rem;">Weekly home-cooked meals</span></div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                           <div style="width:46px;height:46px;border-radius:11px;background:rgba(181, 70, 42,.2);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0;"><i class="fab fa-whatsapp"></i></div>
+                           <div><strong style="display:block;color:#ccc;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;">Call or WhatsApp</strong><a href="{{ whatsapp_url }}" target="_blank" rel="noopener" style="color:#fff;font-size:.87rem;">{{ whatsapp_display }}</a></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-8" data-aos="fade-left">
+                  <div class="fcard">
+                     {% include 'partials/section_messages.html' with tag='match' %}
+                     {% include 'partials/home_form.html' with form=match_form action='request_chef' anchor='reservation' wide='location notes' icon='fa-calendar-check' button='Request a Chef' %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <!-- NEWSLETTER -->
+      <section id="newsletter">
+         <div class="nlbg"></div>
+         <div class="container">
+            <div class="nlw text-center" data-aos="zoom-in">
+               <span class="slbl" style="color:rgba(255,255,255,.7);">Stay Connected</span>
+               <h2 class="mb-3" style="color:#fff;">New Chefs &amp; <span style="color:var(--secondary);">Weekly Specials</span></h2>
+               <p class="mb-4" style="color:rgba(255,255,255,.78);">Be the first to hear about new chefs, menus and specials near you.</p>
+               {% for message in messages %}{% if 'newsletter' in message.tags %}<p class="nlmsg"><i class="fas fa-check-circle me-1"></i>{{ message }}</p>{% endif %}{% endfor %}
+               <form method="post" action="{% url 'subscribe' %}#newsletter" class="nl-form-wrap" novalidate>
+                  {% csrf_token %}
+                  {{ subscribe_form.email }}
+                  <button type="submit" class="nlbtn"><i class="fas fa-paper-plane me-1"></i>Subscribe</button>
+               </form>
+               {% for error in subscribe_form.email.errors %}<p class="nlmsg nlerr">{{ error }}</p>{% endfor %}
+               <p style="color:rgba(255,255,255,.45);font-size:.76rem;margin-top:11px;"><i class="fas fa-lock me-1"></i>No spam, unsubscribe anytime. See our <a href="{% url 'privacy' %}" style="color:inherit;text-decoration:underline;">privacy policy</a>.</p>
+            </div>
+         </div>
+      </section>
+
+      <!-- ============================================================
+         CONTACT FORM
+         ============================================================ -->
+      <section id="contact-section">
+         <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+               <span class="slbl">Get In Touch</span>
+               <h2 class="stitle">Contact <span>Us</span></h2>
+               <div class="sline"></div>
+               <p class="sdesc mx-auto" style="max-width:480px;">Have a question, planning an event, or want to join as a chef? We'd love to hear from you.</p>
+            </div>
+            <div class="row g-4">
+               <div class="col-lg-4" data-aos="fade-right">
+                  <div class="ctdark">
+                     <h4>Let's Talk</h4>
+                     <p class="ctsub">We reply as soon as we can, usually the same day.</p>
+                     <div class="ctitem">
+                        <div class="cticon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="ctinfo"><strong>Location</strong><span>Nairobi, Kenya</span></div>
+                     </div>
+                     <div class="ctitem">
+                        <div class="cticon"><i class="fas fa-phone-alt"></i></div>
+                        <div class="ctinfo"><strong>Phone / WhatsApp</strong><span><a href="{{ whatsapp_url }}" target="_blank" rel="noopener" style="color:inherit;">{{ whatsapp_display }}</a></span></div>
+                     </div>
+                     <div class="ctitem">
+                        <div class="cticon"><i class="fas fa-envelope"></i></div>
+                        <div class="ctinfo"><strong>Email</strong><span>hello@simplychefke.com</span></div>
+                     </div>
+                     <div class="ctitem">
+                        <div class="cticon"><i class="fas fa-clock"></i></div>
+                        <div class="ctinfo"><strong>Support Hours</strong><span>Mon - Sun: 7 AM - 10 PM</span></div>
+                     </div>
+                     {% if social_links %}<div class="ctsocrow">{% include 'partials/social_links.html' %}</div>{% endif %}
+                  </div>
+               </div>
+               <div class="col-lg-8" data-aos="fade-left">
+                  <div class="fcard">
+                     {% include 'partials/section_messages.html' with tag='contact' %}
+                     {% include 'partials/home_form.html' with form=contact_form action='contact' anchor='contact-section' wide='message' icon='fa-paper-plane' button='Send Message' %}
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+{% endblock %}
+
+{% block scripts %}
+      <!-- Swiper -->
+      <script src="{% static 'js/swiper-bundle.min.js' %}"></script>
+      <!-- Magnific Popup -->
+      <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+      <!-- Main js -->
+      <script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

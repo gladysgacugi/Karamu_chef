@@ -1,0 +1,11 @@
+{% if form.non_field_errors %}<p class="ferr mb-3"><i class="fas fa-exclamation-circle me-1"></i>{{ form.non_field_errors|join:" " }}</p>{% endif %}
+<div class="row g-3">
+   {% for field in form %}
+   <div class="col-12">
+      <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text and not field.errors %}<small class="achelp">{{ field.help_text|safe }}</small>{% endif %}
+      {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+   </div>
+   {% endfor %}
+</div>

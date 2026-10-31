@@ -1,0 +1,3 @@
+{% for message in messages %}
+<div class="acmsg {% if message.level_tag == 'error' %}acmsg-err{% endif %}"><i class="fas {% if message.level_tag == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>{{ message }}</div>
+{% endfor %}

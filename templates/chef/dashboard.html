@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Chef dashboard - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <div class="dbhead">
+         <img src="{{ chef.photo_url }}" alt="{{ chef.name }}" class="bkphoto"/>
+         <div>
+            <span class="slbl">Chef dashboard</span>
+            <h1 class="stitle">{{ chef.name }}</h1>
+            <div class="dblinks">
+               <a href="{% url 'chef_profile_edit' %}"><i class="fas fa-user-edit"></i>Profile, menu &amp; prices</a>
+               <a href="{% url 'chef_photos' %}"><i class="fas fa-images"></i>Food photos</a>
+               <a href="{% url 'chef_documents' %}"><i class="fas fa-id-card"></i>Documents</a>
+               <a href="{% url 'chef_availability' %}"><i class="fas fa-calendar-alt"></i>Availability</a>
+               <a href="{{ chef.get_absolute_url }}"><i class="fas fa-eye"></i>View public profile</a>
+            </div>
+         </div>
+      </div>
+      {% if not chef.is_active %}
+      <p class="dbnote"><i class="fas fa-eye-slash"></i>Your profile is not live yet. Add a photo, your packages and prices, and our team will publish it.</p>
+      {% elif not chef.is_accepting_bookings %}
+      <p class="dbnote"><i class="fas fa-pause-circle"></i>New bookings are paused. <a href="{% url 'chef_availability' %}">Start taking bookings again</a></p>
+      {% endif %}
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+
+      <div class="mkpills dbtabs">
+         <a href="?" class="{% if not status %}active{% endif %}">All <span>{{ total }}</span></a>
+         {% for value, label, count in status_tabs %}
+         <a href="?status={{ value }}" class="{% if value == status %}active{% endif %}">{{ label }} <span>{{ count }}</span></a>
+         {% endfor %}
+      </div>
+
+      {% for booking in bookings %}
+      <div class="bkcard">
+         <div class="bkinfo">
+            <div class="bktop">
+               <a href="{% url 'chef_booking' booking.pk %}" class="bkname">{{ booking.full_name }}</a>
+               <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+               {% if booking.price and booking.status != 'new' %}<span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>{% endif %}
+            </div>
+            <div class="bkmeta">
+               <span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }}</span>
+               <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+               <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+               <span><i class="fas fa-utensils"></i>{{ booking.package.name|default:"Custom request" }}</span>
+               {% if booking.price %}<span><i class="fas fa-money-bill-wave"></i>KSh {{ booking.price|floatformat:"0g" }}</span>{% endif %}
+               {% if booking.status == 'confirmed' or booking.status == 'completed' %}<span><i class="fas fa-phone-alt"></i>{{ booking.phone }}</span>{% endif %}
+            </div>
+            {% if booking.notes %}<p class="bknotes"><strong>Requests:</strong> {{ booking.notes }}</p>{% endif %}
+            <small class="bkwhen">Requested {{ booking.created_at|timesince }} ago</small>
+         </div>
+         <div class="bkactions">
+            {% include 'chef/_booking_actions.html' %}
+            <a href="{% url 'chef_booking' booking.pk %}#messages" class="bkbtn bkbtn-ghost"><i class="fas fa-comments"></i>{% if booking.message_count %}Messages ({{ booking.message_count }}){% else %}Message customer{% endif %}</a>
+         </div>
+      </div>
+      {% empty %}
+      <div class="mkempty">
+         <i class="fas fa-calendar"></i>
+         <h5>{% if status %}No {{ status }} bookings{% else %}No booking requests yet{% endif %}</h5>
+         <p>A complete profile with a good photo, clear packages and prices gets more bookings.</p>
+         <a href="{% url 'chef_profile_edit' %}" class="btn-red"><i class="fas fa-user-edit"></i>Improve my profile</a>
+      </div>
+      {% endfor %}
+   </div>
+</section>
+{% endblock %}

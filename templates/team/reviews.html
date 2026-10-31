@@ -1,0 +1,45 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Reviews{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Reviews<small>Publish honest reviews. Decline abusive, off-topic or fake ones.</small></h1>
+{% include 'team/_tabs.html' %}
+
+{% for review in reviews %}
+<div class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ review.customer_name }}</span>
+      <span class="rvstars">{% for i in "12345" %}<i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}</span>
+      <span class="bkstatus rv-{{ review.status }}">{{ review.get_status_display }}</span>
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-utensils"></i>{{ review.chef.name }}</span>
+      {% if review.booking %}<span><i class="fas fa-check-circle"></i><a href="{% url 'team_booking' review.booking.pk %}">Booking {{ review.booking.payment_reference }}, {{ review.booking.event_date|date:"j M" }}</a></span>
+      {% else %}<span><i class="fas fa-question-circle"></i>Not linked to a booking</span>{% endif %}
+   </div>
+   <p class="bknotes">{{ review.comment|linebreaksbr }}</p>
+   <small class="bkwhen">Written {{ review.created_at|timesince }} ago</small>
+   <div class="tmrow">
+      {% if review.status != 'published' %}
+      <form method="post" action="{% url 'team_review_status' review.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="status" value="published"/>
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-check"></i>Publish</button>
+      </form>
+      {% endif %}
+      {% if review.status != 'rejected' %}
+      <form method="post" action="{% url 'team_review_status' review.pk %}"{% if review.status == 'published' %} onsubmit="return confirm('Take this review off the profile?');"{% endif %}>
+         {% csrf_token %}
+         <input type="hidden" name="status" value="rejected"/>
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-eye-slash"></i>{% if review.status == 'published' %}Unpublish{% else %}Decline{% endif %}</button>
+      </form>
+      {% endif %}
+   </div>
+</div>
+{% empty %}
+<div class="mkempty"><i class="fas fa-star"></i><p>{% if status == 'pending' %}All caught up - no reviews to check.{% else %}Nothing here.{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

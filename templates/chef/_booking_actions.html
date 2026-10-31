@@ -1,0 +1,14 @@
+{% comment %}Confirm (with the price), complete, decline or cancel a booking. Needs `booking`.{% endcomment %}
+{% for next_status in booking.chef_next_statuses %}
+<form method="post" action="{% url 'update_booking_status' booking.pk %}"{% if next_status == 'cancelled' %} onsubmit="return confirm('Decline this booking? The customer will be told you can\'t make it.');"{% endif %}>
+   {% csrf_token %}
+   <input type="hidden" name="status" value="{{ next_status.value }}"/>
+   <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+   {% if next_status == 'confirmed' %}
+   <label class="flbl" for="price-{{ booking.pk }}">Price for the customer (KSh)</label>
+   <input type="number" name="price" id="price-{{ booking.pk }}" class="fctrl bkprice" min="1" required value="{{ booking.price|default_if_none:booking.suggested_price|default_if_none:'' }}" placeholder="e.g. 6000"/>
+   <button type="submit" class="bkbtn mt-2"><i class="fas fa-check"></i>Confirm</button>
+   {% elif next_status == 'completed' %}<button type="submit" class="bkbtn"><i class="fas fa-flag-checkered"></i>Mark completed</button>
+   {% else %}<button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-times"></i>{% if booking.status == 'new' %}Decline{% else %}Cancel{% endif %}</button>{% endif %}
+</form>
+{% endfor %}

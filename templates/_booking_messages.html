@@ -1,0 +1,24 @@
+{% comment %}
+The messages between a chef and a customer about a booking, and the box to reply.
+Needs `booking_messages`, `viewer` ("chef", "customer" or "team"), and `message_form` to show the reply box.
+{% endcomment %}
+<div class="msgs" id="messages">
+   {% for msg in booking_messages %}
+   {# Your own messages on the right. The team sees the customer on the right. #}
+   <div class="msg {% if viewer == 'chef' and msg.from_chef or viewer != 'chef' and not msg.from_chef %}msg-me{% else %}msg-them{% endif %}">
+      <span class="msgwho">{% if msg.from_chef %}{{ booking.chef.name }}{% else %}{{ booking.full_name }}{% endif %} &middot; {{ msg.created_at|date:"j M, H:i" }}</span>
+      <p>{{ msg.body|linebreaksbr }}</p>
+   </div>
+   {% empty %}
+   <p class="msgempty">{% if viewer == 'chef' %}No messages yet. Ask about allergies, the menu or directions, or let them know you're on your way.{% elif viewer == 'customer' %}No messages yet. Ask {{ booking.chef.name }} about the menu, allergies or anything else.{% else %}No messages.{% endif %}</p>
+   {% endfor %}
+</div>
+{% if message_form %}
+<form method="post" class="msgform" novalidate>
+   {% csrf_token %}
+   <label class="visually-hidden" for="{{ message_form.body.id_for_label }}">{{ message_form.body.label }}</label>
+   {{ message_form.body }}
+   {% for error in message_form.body.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+   <button type="submit" class="bkbtn w-auto mt-2"><i class="fas fa-paper-plane"></i>Send</button>
+</form>
+{% endif %}

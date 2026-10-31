@@ -1,0 +1,6 @@
+<div class="mkpills dbtabs tmtabs">
+   {% for value, label, count in status_tabs %}
+   <a href="?status={{ value }}" class="{% if value == status %}active{% endif %}">{{ label }} <span>{{ count }}</span></a>
+   {% endfor %}
+   <a href="?status=" class="{% if not status %}active{% endif %}">All <span>{{ total }}</span></a>
+</div>

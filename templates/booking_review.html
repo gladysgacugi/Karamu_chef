@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Review {{ booking.chef.name }} - Karamu{% endblock %}
+
+{% block content %}
+<section class="acwrap">
+   <div class="container">
+      <div class="fcard bkconf">
+         <a href="{% url 'booking_confirmation' booking.pk %}" class="dbback"><i class="fas fa-arrow-left me-1"></i>Back to your booking</a>
+         <div class="bkchef mt-2">
+            <img src="{{ booking.chef.photo_url }}" alt="{{ booking.chef.name }}" class="bkphoto"/>
+            <div>
+               <h1 class="actitle mb-0">Review <span>{{ booking.chef.name }}</span></h1>
+               <div class="bkmeta"><span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }} &middot; {{ booking.package.name|default:"Custom request" }}</span></div>
+            </div>
+         </div>
+         <p class="acsub mt-3">Be honest and specific: the food, how it was served, timekeeping and clean-up. Our team checks every review before it goes on the profile.</p>
+
+         <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+               {% for field in form %}
+               <div class="{% if field.name == 'comment' %}col-12{% else %}col-sm-6{% endif %}">
+                  <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.name == 'customer_name' and not field.errors %}<small class="achelp">Shown with your review. Your first name is enough.</small>{% endif %}
+                  {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+               </div>
+               {% endfor %}
+               <div class="col-12"><button type="submit" class="btn-red"><i class="fas fa-star"></i>Submit review</button></div>
+            </div>
+         </form>
+      </div>
+   </div>
+</section>
+{% endblock %}

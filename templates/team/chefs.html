@@ -1,0 +1,63 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Chefs{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Chefs<small><a href="{% url 'team_applications' %}">Applications{% if waiting.applications %} ({{ waiting.applications }} waiting){% endif %}</a></small></h1>
+<div class="mkpills dbtabs tmtabs">
+   {% for key, label, count in filters %}
+   <a href="?show={{ key }}" class="{% if key == show %}active{% endif %}">{{ label }} <span>{{ count }}</span></a>
+   {% endfor %}
+</div>
+
+{% for chef in chefs %}
+<div class="tmcard">
+   <div class="bktop">
+      <a href="{{ chef.get_absolute_url }}" target="_blank" rel="noopener" class="bkname">{{ chef.name }}</a>
+      <span class="bkstatus {% if chef.is_active %}bk-confirmed{% else %}bk-new{% endif %}">{% if chef.is_active %}Live{% else %}Not live{% endif %}</span>
+      {% if not chef.is_accepting_bookings %}<span class="bkstatus bk-completed">Paused</span>{% endif %}
+      {% if chef.is_featured %}<span class="bkstatus bk-completed">Homepage</span>{% endif %}
+      {% if chef.is_verified %}<span class="bkstatus bk-confirmed">Verified</span>{% elif chef.documents_updated_at %}<span class="bkstatus bk-new">New documents</span>{% endif %}
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-map-marker-alt"></i>{% if chef.area %}{{ chef.area }}, {% endif %}{{ chef.city.name }}</span>
+      <span><i class="fas fa-utensils"></i>{{ chef.get_cuisine_display }}</span>
+      <span>{% if chef.review_count %}<i class="fas fa-star"></i>{{ chef.avg_rating|floatformat:1 }} ({{ chef.review_count }}){% else %}<i class="fas fa-seedling"></i>No reviews{% endif %}</span>
+      <span><i class="fas fa-phone-alt"></i>{{ chef.phone }}</span>
+      {% if not chef.user_id %}<span><i class="fas fa-user-slash"></i>No login</span>{% endif %}
+   </div>
+   <div class="tmrow">
+      <form method="post" action="{% url 'team_chef_live' chef.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         {% if chef.is_active %}
+         <input type="hidden" name="live" value="0"/>
+         <button type="submit" class="bkbtn bkbtn-ghost" onclick="return confirm('Hide {{ chef.name|escapejs }} from the marketplace?');"><i class="fas fa-eye-slash"></i>Hide</button>
+         {% else %}
+         <input type="hidden" name="live" value="1"/>
+         <button type="submit" class="bkbtn"><i class="fas fa-rocket"></i>Put live</button>
+         {% endif %}
+      </form>
+      <form method="post" action="{% url 'team_chef_featured' chef.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <input type="hidden" name="featured" value="{% if chef.is_featured %}0{% else %}1{% endif %}"/>
+         <button type="submit" class="bkbtn bkbtn-plain"><i class="fas fa-home"></i>{% if chef.is_featured %}Off homepage{% else %}On homepage{% endif %}</button>
+      </form>
+      {% if chef.application_id %}<a class="bkbtn bkbtn-plain" href="{% url 'team_application' chef.application_id %}"><i class="fas fa-id-card"></i>Application</a>{% endif %}
+   </div>
+   <div class="tmrow">
+      {% if chef.national_id %}<a class="bkbtn bkbtn-plain" href="{{ chef.national_id.url }}" target="_blank" rel="noopener"><i class="fas fa-id-card"></i>ID</a>{% endif %}
+      {% if chef.food_handler_certificate %}<a class="bkbtn bkbtn-plain" href="{{ chef.food_handler_certificate.url }}" target="_blank" rel="noopener"><i class="fas fa-certificate"></i>Food handler's cert</a>{% endif %}
+      <form method="post" action="{% url 'team_chef_verified' chef.pk %}">
+         {% csrf_token %}
+         <input type="hidden" name="next" value="{{ request.get_full_path }}"/>
+         <input type="hidden" name="verified" value="{% if chef.is_verified %}0{% else %}1{% endif %}"/>
+         <button type="submit" class="bkbtn {% if chef.is_verified %}bkbtn-plain{% else %}bkbtn-ghost{% endif %}"><i class="fas fa-check-circle"></i>{% if chef.is_verified %}Unverify{% else %}Mark verified{% endif %}</button>
+      </form>
+   </div>
+</div>
+{% empty %}
+<div class="mkempty"><i class="fas fa-user"></i><p>Nothing here.</p></div>
+{% endfor %}
+{% endblock %}

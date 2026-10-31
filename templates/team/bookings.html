@@ -1,0 +1,42 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Bookings{% endblock %}
+
+{% block content %}
+{% if checking_payments %}
+<h1 class="tmtitle">Payments to check<small>Find each M-Pesa code on the statement, then mark it paid or not found</small></h1>
+<a href="{% url 'team_bookings' %}" class="dbback"><i class="fas fa-arrow-left me-1"></i>All bookings</a>
+{% else %}
+<h1 class="tmtitle">Bookings<small>Confirming here emails the customer and the chef</small></h1>
+{% if waiting.payments %}<a href="?payment=submitted&amp;status=" class="tmcard tmalert"><i class="fas fa-mobile-alt me-2"></i><strong>{{ waiting.payments }}</strong> M-Pesa payment{{ waiting.payments|pluralize }} to check</a>{% endif %}
+{% include 'team/_tabs.html' %}
+{% endif %}
+
+{% for booking in bookings %}
+<div class="tmcard">
+   <div class="bktop">
+      <a href="{% url 'team_booking' booking.pk %}" class="bkname">{{ booking.full_name }} <i class="fas fa-chevron-right"></i></a>
+      <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+      {% if booking.price %}<span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>{% endif %}
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-utensils"></i>{{ booking.chef.name }} &middot; {{ booking.package.name|default:"Custom request" }}</span>
+      <span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }}</span>
+      <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+      <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+      <span><i class="fas fa-phone-alt"></i>{{ booking.phone }}</span>
+      {% if booking.price %}<span><i class="fas fa-money-bill-wave"></i>KSh {{ booking.price|floatformat:"0g" }} &middot; {{ booking.payment_reference }}</span>{% endif %}
+      {% if booking.mpesa_code %}<span><i class="fas fa-receipt"></i>M-Pesa {{ booking.mpesa_code }}</span>{% endif %}
+   </div>
+   {% if booking.notes %}<p class="bknotes"><strong>Requests:</strong> {{ booking.notes }}</p>{% endif %}
+   <small class="bkwhen">Requested {{ booking.created_at|timesince }} ago{% if not booking.email %} &middot; no email given, contact them on WhatsApp{% endif %}</small>
+   <div class="tmrow">
+      <a class="bkbtn bkbtn-wa" href="https://wa.me/{{ booking.phone|cut:'+' }}?text={% filter urlencode:'' %}Hi {{ booking.full_name }}, this is Karamu about your booking with {{ booking.chef.name }} on {{ booking.event_date|date:'j M' }}.{% endfilter %}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+      <a class="bkbtn bkbtn-plain" href="tel:{{ booking.phone }}"><i class="fas fa-phone-alt"></i>Call</a>
+   </div>
+   {% include 'team/_booking_actions.html' %}
+</div>
+{% empty %}
+<div class="mkempty"><i class="fas fa-calendar"></i><p>{% if checking_payments %}No payments waiting to be checked.{% elif status == 'new' %}All caught up - no new bookings.{% else %}Nothing here.{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

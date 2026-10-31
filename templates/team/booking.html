@@ -1,0 +1,85 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Booking {{ booking.payment_reference }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'team_bookings' %}" class="dbback"><i class="fas fa-arrow-left me-1"></i>Bookings</a>
+<h1 class="tmtitle">{{ booking.full_name }}<small>Booking {{ booking.payment_reference }} &middot; requested {{ booking.created_at|date:"j M Y, H:i" }}</small></h1>
+
+<div class="tmrow mt-0 mb-3">
+   <a class="bkbtn bkbtn-wa" href="https://wa.me/{{ booking.phone|cut:'+' }}?text={% filter urlencode:'' %}Hi {{ booking.full_name }}, this is Karamu about your booking with {{ booking.chef.name }} on {{ booking.event_date|date:'j M' }}.{% endfilter %}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+   <a class="bkbtn bkbtn-plain" href="tel:{{ booking.phone }}"><i class="fas fa-phone-alt"></i>Call</a>
+   {% if booking.email %}<a class="bkbtn bkbtn-plain" href="mailto:{{ booking.email }}"><i class="fas fa-envelope"></i>Email</a>{% endif %}
+</div>
+
+{% if clash %}
+<div class="tmcard tmalert"><i class="fas fa-exclamation-triangle me-2"></i>{{ booking.chef.name }} already has a confirmed booking at this time. Find another chef or ask the customer to change the time.</div>
+{% endif %}
+
+<div class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ booking.event_date|date:"D j M Y" }} &middot; {{ booking.get_time_slot_display }}</span>
+      <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+   </div>
+   <dl class="tmdl">
+      <dt>Chef</dt><dd><a href="{{ booking.chef.get_absolute_url }}" target="_blank" rel="noopener">{{ booking.chef.name }}</a></dd>
+      <dt>Package</dt><dd>{% if booking.package %}{{ booking.package.name }} (KSh {{ booking.package.price|floatformat:"0g" }} {{ booking.package.price_unit }}){% else %}Custom request{% endif %}</dd>
+      <dt>Guests</dt><dd>{{ booking.guests }}</dd>
+      <dt>Location</dt><dd>{{ booking.location }}</dd>
+      <dt>Phone</dt><dd>{{ booking.phone }}</dd>
+      <dt>Email</dt><dd>{{ booking.email|default:"-" }}</dd>
+      <dt>Account</dt><dd>{% if booking.customer %}{{ booking.customer.email }}{% else %}Booked as a guest{% endif %}</dd>
+      {% if booking.notes %}<dt>Requests</dt><dd>{{ booking.notes }}</dd>{% endif %}
+      {% if booking.reminder_sent_at %}<dt>Reminder</dt><dd>Sent {{ booking.reminder_sent_at|date:"j M, H:i" }}</dd>{% endif %}
+   </dl>
+   {% include 'team/_booking_actions.html' %}
+</div>
+
+<div class="tmcard">
+   <div class="bktop">
+      <h2 class="tmsub mb-0">Payment</h2>
+      <span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>
+   </div>
+   <dl class="tmdl">
+      <dt>Price</dt><dd>{% if booking.price %}KSh {{ booking.price|floatformat:"0g" }}{% else %}Not set - it is set when the booking is confirmed{% endif %}</dd>
+      <dt>Account number</dt><dd>{{ booking.payment_reference }}</dd>
+      <dt>M-Pesa code</dt><dd>{{ booking.mpesa_code|default:"-" }}</dd>
+      {% if booking.paid_at %}<dt>Paid</dt><dd>{{ booking.paid_at|date:"j M Y, H:i" }}</dd>{% endif %}
+   </dl>
+   {% if booking.payment_status == 'submitted' %}<p class="tmnote">Search the M-Pesa statement for <strong>{{ booking.mpesa_code }}</strong> and check the amount is KSh {{ booking.price|floatformat:"0g" }}.</p>{% endif %}
+</div>
+
+{% if booking_messages %}
+<div class="tmcard">
+   <h2 class="tmsub">Messages between chef and customer</h2>
+   {% include '_booking_messages.html' with viewer='team' message_form=None %}
+</div>
+{% endif %}
+
+{% if review %}
+<div class="tmcard">
+   <div class="bktop">
+      <h2 class="tmsub mb-0">Review</h2>
+      <span class="rvstars">{% for i in "12345" %}<i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}</span>
+      <span class="bkstatus rv-{{ review.status }}">{{ review.get_status_display }}</span>
+   </div>
+   <p class="bknotes">{{ review.comment }}</p>
+   <a href="{% url 'team_reviews' %}?status={{ review.status }}" class="tmnote">Moderate reviews</a>
+</div>
+{% endif %}
+
+<div class="tmcard">
+   <h2 class="tmsub">Edit</h2>
+   <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <label class="flbl mt-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text and not field.errors %}<small class="achelp">{{ field.help_text }}</small>{% endif %}
+      {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+      {% endfor %}
+      <div class="tmrow"><button type="submit" class="bkbtn"><i class="fas fa-save"></i>Save</button></div>
+   </form>
+   <p class="tmnote">Changing the price here does not email anyone. Let the customer know on WhatsApp. <a href="{% url 'admin:SimplyChefKe_bookingrequest_change' booking.pk %}">Full admin</a> for anything else.</p>
+</div>
+{% endblock %}

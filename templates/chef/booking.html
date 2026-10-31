@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking for {{ booking.full_name }} - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{% url 'chef_dashboard' %}" class="dbback"><i class="fas fa-arrow-left"></i> Back to bookings</a>
+      <span class="slbl">Booking #{{ booking.pk }}</span>
+      <h1 class="stitle">{{ booking.full_name }}</h1>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      <div class="row g-4">
+         <div class="col-lg-5">
+            <div class="fcard dbcard">
+               <div class="bktop">
+                  <h4 class="mb-0">Details</h4>
+                  <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                  {% if booking.price and booking.status != 'new' %}<span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>{% endif %}
+               </div>
+               <div class="bkmeta dbmeta">
+                  <span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }}</span>
+                  <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+                  <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+                  <span><i class="fas fa-utensils"></i>{{ booking.package.name|default:"Custom request" }}</span>
+                  {% if booking.price %}<span><i class="fas fa-money-bill-wave"></i>KSh {{ booking.price|floatformat:"0g" }}</span>{% endif %}
+                  {% if booking.status == 'confirmed' or booking.status == 'completed' %}<span><i class="fas fa-phone-alt"></i>{{ booking.phone }}</span>{% endif %}
+               </div>
+               {% if booking.notes %}<p class="bknotes"><strong>Requests:</strong> {{ booking.notes }}</p>{% endif %}
+               <small class="bkwhen">Requested {{ booking.created_at|timesince }} ago</small>
+               {% if booking.chef_next_statuses %}
+               <div class="bkactions dbactions">{% include 'chef/_booking_actions.html' %}</div>
+               {% endif %}
+            </div>
+         </div>
+         <div class="col-lg-7">
+            <div class="fcard dbcard">
+               <h4>Messages</h4>
+               <p class="acsub">{% if booking.email %}We email each message to {{ booking.full_name.split.0 }}, and they can reply from their booking page.{% else %}{{ booking.full_name.split.0 }} booked without an email, so they'll only see your messages on their booking page.{% endif %}</p>
+               {% include '_booking_messages.html' with viewer='chef' message_form=form %}
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+{% endblock %}

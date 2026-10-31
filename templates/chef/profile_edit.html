@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile, menu & prices - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{% url 'chef_dashboard' %}" class="dbback"><i class="fas fa-arrow-left"></i> Back to bookings</a>
+      <span class="slbl">Chef dashboard</span>
+      <h1 class="stitle">Edit <span>{{ chef.name }}</span></h1>
+      <p class="sdesc">Changes show on your public profile straight away{% if not chef.is_active %}, once our team has set it live{% endif %}. To change your display name, WhatsApp us.</p>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      <form method="post" enctype="multipart/form-data" novalidate>
+         {% csrf_token %}
+         <div class="row g-4">
+            <div class="col-lg-7">
+               <div class="fcard dbcard">
+                  <h4>Profile</h4>
+                  <div class="row g-3">
+                     {% for field in form %}
+                     <div class="{% if field.name in 'headline bio services' %}col-12{% else %}col-sm-6{% endif %}">
+                        <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.name == 'services' %}<div class="dbchecks">{{ field }}</div>{% else %}{{ field }}{% endif %}
+                        {% if field.help_text and not field.errors %}<small class="achelp">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+                     </div>
+                     {% endfor %}
+                  </div>
+               </div>
+            </div>
+
+            <div class="col-lg-5">
+               <div class="fcard dbcard">
+                  <h4>Packages &amp; prices</h4>
+                  <p class="acsub">The offers customers can pick when booking, and what each costs. Fill in the blank one to add a package; save and another blank one appears. Days off and pausing bookings are on the <a href="{% url 'chef_availability' %}">Availability</a> page.</p>
+                  {{ packages.management_form }}
+                  {% for error in packages.non_form_errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+                  {% for pform in packages %}
+                  <div class="dbitem">
+                     {% for hidden in pform.hidden_fields %}{{ hidden }}{% endfor %}
+                     <div class="row g-2">
+                        {% for field in pform.visible_fields %}
+                        {% if field.name == 'DELETE' %}
+                        {% if pform.instance.pk %}<div class="col-12"><label class="dbdel">{{ field }} Remove this package</label></div>{% endif %}
+                        {% elif field.name == 'is_active' %}
+                        <div class="col-12"><label class="dbdel">{{ field }} {{ field.label }} <small>(untick to hide it for now)</small></label></div>
+                        {% else %}
+                        <div class="{% if field.name in 'name description' %}col-12{% else %}col-sm-4{% endif %}">
+                           <label class="flbl" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                           {{ field }}
+                           {% for error in field.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                     </div>
+                  </div>
+                  {% endfor %}
+               </div>
+
+               <p class="acsub mt-3"><i class="fas fa-images me-1"></i>Food photos are on their own page: <a href="{% url 'chef_photos' %}">add or change photos</a>.</p>
+            </div>
+         </div>
+         <div class="dbsave">
+            <button type="submit" class="btn-red"><i class="fas fa-save"></i>Save changes</button>
+         </div>
+      </form>
+   </div>
+</section>
+{% endblock %}

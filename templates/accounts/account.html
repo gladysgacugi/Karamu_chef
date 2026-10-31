@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}My bookings - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <span class="slbl">Hi {{ user.first_name|default:"there" }}</span>
+      <h1 class="stitle">My <span>Bookings</span></h1>
+      <p class="sdesc">Every chef you've booked while logged in. We'll email and SMS you as soon as a chef confirms.</p>
+      {% if chef %}<a href="{% url 'chef_dashboard' %}" class="btn-red mt-2"><i class="fas fa-calendar-check"></i>Go to your chef dashboard</a>{% endif %}
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      {% for booking in bookings %}
+      <div class="bkcard">
+         <img src="{{ booking.chef.photo_url }}" alt="{{ booking.chef.name }}" class="bkphoto"/>
+         <div class="bkinfo">
+            <div class="bktop">
+               <a href="{{ booking.chef.get_absolute_url }}" class="bkname">{{ booking.chef.name }}</a>
+               <span class="bkstatus bk-{{ booking.status }}">{{ booking.get_status_display }}</span>
+               {% if booking.price and booking.status != 'new' %}<span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>{% endif %}
+            </div>
+            <div class="bkmeta">
+               <span><i class="fas fa-calendar"></i>{{ booking.event_date|date:"D j M Y" }}, {{ booking.get_time_slot_display }}</span>
+               <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+               <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+               <span><i class="fas fa-utensils"></i>{{ booking.package.name|default:"Custom request" }}</span>
+               {% if booking.price %}<span><i class="fas fa-money-bill-wave"></i>KSh {{ booking.price|floatformat:"0g" }}</span>{% endif %}
+            </div>
+            {% if booking.notes %}<p class="bknotes">{{ booking.notes }}</p>{% endif %}
+         </div>
+         <div class="bkactions">
+            <a href="{% url 'booking_confirmation' booking.pk %}" class="bkbtn bkbtn-ghost"><i class="fas fa-info-circle"></i>Details</a>
+            {% if booking.customer_can_cancel %}
+            <form method="post" action="{% url 'cancel_booking' booking.pk %}" onsubmit="return confirm('Cancel this booking request?');">
+               {% csrf_token %}
+               <button type="submit" class="bkbtn bkbtn-ghost"><i class="fas fa-times"></i>Cancel request</button>
+            </form>
+            {% elif booking.can_be_reviewed %}
+            <a href="{% url 'booking_review' booking.pk %}" class="bkbtn"><i class="fas fa-star"></i>Leave a review</a>
+            {% elif booking.customer_can_pay %}
+            <a href="{% url 'booking_checkout' booking.pk %}" class="bkbtn"><i class="fas fa-mobile-alt"></i>Pay now</a>
+            {% elif booking.status == 'confirmed' %}
+            <a href="{{ whatsapp_url }}?text={% filter urlencode:'' %}Hi Karamu, about my booking with {{ booking.chef.name }} on {{ booking.event_date|date:"j M" }}.{% endfilter %}" target="_blank" rel="noopener" class="bkbtn bkbtn-ghost"><i class="fab fa-whatsapp"></i>Change booking</a>
+            {% endif %}
+         </div>
+      </div>
+      {% empty %}
+      <div class="mkempty">
+         <i class="fas fa-receipt"></i>
+         <h5>No bookings yet</h5>
+         <p>Find a chef for your next family lunch, party or weekly meal prep.</p>
+         <a href="{% url 'marketplace' %}" class="btn-red"><i class="fas fa-search"></i>Find a Chef</a>
+      </div>
+      {% endfor %}
+   </div>
+</section>
+{% endblock %}

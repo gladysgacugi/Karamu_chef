@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="acwrap">
+   <div class="container">
+      <div class="accard fcard">
+         <span class="slbl">{% block eyebrow %}Karamu{% endblock %}</span>
+         <h1 class="actitle">{% block heading %}{% endblock %}</h1>
+         {% block card %}{% endblock %}
+      </div>
+   </div>
+</section>
+{% endblock %}

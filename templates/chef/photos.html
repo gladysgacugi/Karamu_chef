@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Food photos - Karamu{% endblock %}
+
+{% block content %}
+<section class="mkhero dbhero">
+   <div class="container">
+      <a href="{% url 'chef_dashboard' %}" class="dbback"><i class="fas fa-arrow-left"></i> Back to bookings</a>
+      <span class="slbl">Chef dashboard</span>
+      <h1 class="stitle">Food <span>photos</span></h1>
+      <p class="sdesc">Up to {{ max_photos }} photos on your public profile. Bright, close-up shots of your dishes get the most bookings.</p>
+   </div>
+</section>
+
+<section class="dbmain">
+   <div class="container">
+      {% include 'accounts/_messages.html' %}
+      <form method="post" enctype="multipart/form-data" novalidate>
+         {% csrf_token %}
+         <div class="fcard dbcard">
+            <h4>Add photos</h4>
+            <p class="acsub">You have {{ photos.forms|length }} of {{ max_photos }}. You can pick several photos at once.</p>
+            <label class="flbl" for="{{ add.new_photos.id_for_label }}">{{ add.new_photos.label }}</label>
+            {{ add.new_photos }}
+            <small style="color:#999;font-size:.75rem;">{{ add.new_photos.help_text }}</small>
+            {% for error in add.new_photos.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+         </div>
+
+         <div class="fcard dbcard mt-4">
+            <h4>Your photos</h4>
+            {{ photos.management_form }}
+            {% for error in photos.non_form_errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+            <div class="dbgallery">
+               {% for phform in photos %}
+               <div class="dbshot">
+                  {% for hidden in phform.hidden_fields %}{{ hidden }}{% endfor %}
+                  <img src="{{ phform.instance.image.url }}" alt="{{ phform.instance.caption }}"/>
+                  {{ phform.caption }}
+                  {% for error in phform.caption.errors %}<small class="ferr">{{ error }}</small>{% endfor %}
+                  <label class="dbdel">{{ phform.DELETE }} Remove</label>
+               </div>
+               {% empty %}
+               <p class="acsub mb-0">No photos yet. Add a few above so customers can see your food.</p>
+               {% endfor %}
+            </div>
+         </div>
+         <div class="dbsave">
+            <button type="submit" class="btn-red"><i class="fas fa-save"></i>Save photos</button>
+         </div>
+      </form>
+   </div>
+</section>
+{% endblock %}

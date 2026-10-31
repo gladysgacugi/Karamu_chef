@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ chef.name }} - {{ chef.headline }} | Karamu{% endblock %}
+{% block description %}{{ chef.name }}, {{ chef.get_cuisine_display }} chef in {{ chef.city.name }}. From KSh {{ chef.starting_price }} {{ chef.price_unit }}. View menu, photos and reviews and book on Karamu.{% endblock %}
+
+{% block whatsapp_text %}Hi Karamu, I'm interested in booking {{ chef.name }}.{% endblock %}
+
+{% block content %}
+<!-- PROFILE HEADER -->
+<section class="cphero" style="background-image:linear-gradient(rgba(17,17,17,.72),rgba(17,17,17,.82)),url('{{ chef.cover_url }}');">
+   <div class="container">
+      <a href="{% url 'marketplace' %}" class="cpback"><i class="fas fa-arrow-left"></i> Back to marketplace</a>
+      {% if is_own_profile %}
+      <div class="cpown">
+         <span><i class="fas fa-user-circle"></i>This is your profile{% if not chef.is_active %}. It is hidden from customers until our team sets it live{% endif %}.</span>
+         <a href="{% url 'chef_profile_edit' %}"><i class="fas fa-user-edit"></i>Edit profile</a>
+      </div>
+      {% endif %}
+      <div class="cphead">
+         <img src="{{ chef.photo_url }}" alt="{{ chef.name }}" class="cpphoto"/>
+         <div>
+            <h1>{{ chef.name }} {% if chef.is_verified %}<i class="fas fa-check-circle" title="ID & food handler's certificate verified"></i>{% endif %}</h1>
+            <p class="cpheadline">{{ chef.headline }}</p>
+            <div class="cpmeta">
+               <span>{% if chef.review_count %}<i class="fas fa-star"></i> {{ chef.avg_rating|floatformat:1 }} ({{ chef.review_count }} review{{ chef.review_count|pluralize }}){% else %}<i class="fas fa-seedling"></i> New on Karamu{% endif %}</span>
+               <span><i class="fas fa-map-marker-alt"></i>{% if chef.area %}{{ chef.area }}, {% endif %}{{ chef.city.name }}</span>
+               <span><i class="fas fa-utensils"></i>{{ chef.get_cuisine_display }}</span>
+               {% if chef.years_experience %}<span><i class="fas fa-award"></i>{{ chef.years_experience }} yr{{ chef.years_experience|pluralize }} experience</span>{% endif %}
+            </div>
+            <div class="mktags mt-2">{% for s in chef.services.all %}<a href="{{ s.get_absolute_url }}">{{ s.name }}</a>{% endfor %}</div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<section class="cpmain">
+   <div class="container">
+      <div class="row g-5">
+         <!-- LEFT: profile content -->
+         <div class="col-lg-7">
+            <div class="cpblock">
+               <h4>About {{ chef.name }}</h4>
+               <p class="sdesc">{{ chef.bio|linebreaksbr }}</p>
+            </div>
+
+            <div class="cpblock">
+               <h4>Menu &amp; Packages</h4>
+               {% for pkg in chef.packages.all %}
+               <div class="pkgcard">
+                  <div>
+                     <div class="pkgnm">{{ pkg.name }}</div>
+                     <p>{{ pkg.description|linebreaksbr }}</p>
+                  </div>
+                  <div class="pkgside">
+                     <div class="pkgprice">KSh {{ pkg.price|floatformat:"0g" }}<small>{{ pkg.price_unit }}</small></div>
+                     <a href="?package={{ pkg.pk }}#book" class="pkgbtn">Select</a>
+                  </div>
+               </div>
+               {% empty %}
+               <p class="sdesc">{{ chef.name }} creates custom menus. Send a booking request with your idea and they'll get back to you with a quote.</p>
+               {% endfor %}
+            </div>
+
+            {% if chef.photos.all %}
+            <div class="cpblock">
+               <h4>Photos</h4>
+               <div class="cpgallery">
+                  {% for photo in chef.photos.all %}<img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy"/>{% endfor %}
+               </div>
+            </div>
+            {% endif %}
+
+            <div class="cpblock" id="reviews">
+               <h4>Reviews {% if chef.review_count %}<span class="cprvsum"><i class="fas fa-star"></i> {{ chef.avg_rating|floatformat:1 }} &middot; {{ chef.review_count }}</span>{% endif %}</h4>
+               {% for review in reviews %}
+               <div class="rvcard">
+                  <div class="rvtop">
+                     <strong>{{ review.customer_name }}</strong>
+                     <span class="rvstars">{% for i in "12345" %}<i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}</span>
+                  </div>
+                  <p>{{ review.comment }}</p>
+                  <small>{{ review.created_at|date:"j M Y" }}</small>
+               </div>
+               {% empty %}
+               <p class="sdesc">No reviews yet.</p>
+               {% endfor %}
+
+               {% if booking_to_review %}
+               <div class="rvform">
+                  <h6>How was your {{ booking_to_review.event_date|date:"j M" }} booking?</h6>
+                  <a href="{% url 'booking_review' booking_to_review.pk %}" class="btn-red"><i class="fas fa-star"></i>Review {{ chef.name }}</a>
+               </div>
+               {% else %}
+               <p class="rvnote"><i class="fas fa-shield-alt"></i>Reviews come only from customers who booked {{ chef.name }} through Karamu. We send you a review link after your booking.</p>
+               {% endif %}
+            </div>
+         </div>
+
+         <!-- RIGHT: booking -->
+         <div class="col-lg-5">
+            <div class="fcard cpbook" id="book">
+               <div class="cpbookprice">From <strong>KSh {{ chef.starting_price|floatformat:"0g" }}</strong> <small>{{ chef.price_unit }}</small></div>
+               <h4>Request a Booking</h4>
+               {% if not chef.is_accepting_bookings %}
+               <p class="cppaused"><i class="fas fa-pause-circle"></i>{{ chef.name }} is not taking new bookings right now. <a href="{% url 'marketplace' %}?city={{ chef.city.slug }}">See other chefs in {{ chef.city.name }}</a> or WhatsApp us and we'll help.</p>
+               {% else %}
+               <p class="cpbooknote"><i class="fas fa-shield-alt"></i> No payment now. {{ chef.name }} confirms first, then you pay securely via M-Pesa.</p>
+               {% include 'partials/time_off.html' %}
+               {% if not user.is_authenticated %}
+               <p class="cplogin"><a href="{% url 'login' %}?next={{ request.path|urlencode }}%23book">Log in</a> or <a href="{% url 'signup' %}?next={{ request.path|urlencode }}%23book">create an account</a> to fill in your details and track this booking.</p>
+               {% endif %}
+               {% include 'partials/booking_form.html' with form=booking_form %}
+               {% endif %}
+            </div>
+         </div>
+      </div>
+
+      {% if similar_chefs %}
+      <div class="mt-5 pt-4">
+         <h4 class="mb-4">More Chefs in {{ chef.city.name }}</h4>
+         <div class="row g-4">
+            {% for chef in similar_chefs %}<div class="col-sm-6 col-lg-4">{% include 'partials/chef_card.html' %}</div>{% endfor %}
+         </div>
+      </div>
+      {% endif %}
+   </div>
+</section>
+{% endblock %}

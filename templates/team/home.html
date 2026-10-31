@@ -1,0 +1,53 @@
+{% extends 'team/base.html' %}
+
+{% block title %}Today{% endblock %}
+
+{% block content %}
+<h1 class="tmtitle">Hi {{ user.first_name|default:user.username }}<small>Here's what needs you today</small></h1>
+
+<div class="tmtiles">
+   <a href="{% url 'team_applications' %}" class="tmtile{% if waiting.applications %} hot{% endif %}">
+      <i class="fas fa-user-check"></i><strong>{{ waiting.applications }}</strong><span>Chef application{{ waiting.applications|pluralize }} to review</span>
+   </a>
+   <a href="{% url 'team_bookings' %}" class="tmtile{% if waiting.bookings %} hot{% endif %}">
+      <i class="fas fa-calendar-check"></i><strong>{{ waiting.bookings }}</strong><span>New booking{{ waiting.bookings|pluralize }}</span>
+   </a>
+   <a href="{% url 'team_bookings' %}?payment=submitted&amp;status=" class="tmtile{% if waiting.payments %} hot{% endif %}">
+      <i class="fas fa-mobile-alt"></i><strong>{{ waiting.payments }}</strong><span>M-Pesa payment{{ waiting.payments|pluralize }} to check</span>
+   </a>
+   <a href="{% url 'team_reviews' %}" class="tmtile{% if waiting.reviews %} hot{% endif %}">
+      <i class="fas fa-star"></i><strong>{{ waiting.reviews }}</strong><span>Review{{ waiting.reviews|pluralize }} to check</span>
+   </a>
+   <a href="{% url 'team_requests' %}" class="tmtile{% if waiting.requests %} hot{% endif %}">
+      <i class="fas fa-concierge-bell"></i><strong>{{ waiting.requests }}</strong><span>Find-a-chef request{{ waiting.requests|pluralize }}</span>
+   </a>
+   <a href="{% url 'team_inbox' %}" class="tmtile{% if waiting.inbox %} hot{% endif %}">
+      <i class="fas fa-envelope"></i><strong>{{ waiting.inbox }}</strong><span>Message{{ waiting.inbox|pluralize }} to reply to</span>
+   </a>
+</div>
+
+{% if chefs_waiting_to_go_live %}
+<a href="{% url 'team_chefs' %}?show=hidden" class="tmcard">
+   <i class="fas fa-eye-slash me-2" style="color:var(--secondary)"></i><strong>{{ chefs_waiting_to_go_live }}</strong> chef profile{{ chefs_waiting_to_go_live|pluralize }} not live yet
+   <p class="tmnote">Check their profile has a photo, packages and prices, then put it live.</p>
+</a>
+{% endif %}
+
+<h2 class="tmsub">Coming up this week</h2>
+{% for booking in upcoming %}
+<a href="{% url 'team_booking' booking.pk %}" class="tmcard">
+   <div class="bktop">
+      <span class="bkname">{{ booking.event_date|date:"D j M" }} &middot; {{ booking.get_time_slot_display }}</span>
+      <span class="bkstatus pay-{{ booking.payment_status }}">{{ booking.get_payment_status_display }}</span>
+   </div>
+   <div class="bkmeta">
+      <span><i class="fas fa-user"></i>{{ booking.full_name }}</span>
+      <span><i class="fas fa-utensils"></i>{{ booking.chef.name }}</span>
+      <span><i class="fas fa-users"></i>{{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+      <span><i class="fas fa-map-marker-alt"></i>{{ booking.location }}</span>
+   </div>
+</a>
+{% empty %}
+<div class="mkempty"><i class="fas fa-calendar"></i><p>No confirmed bookings in the next 7 days.</p></div>
+{% endfor %}
+{% endblock %}
